@@ -1,0 +1,123 @@
+% simple.tex - A simple article to illustrate document structure.
+
+% Andrew Roberts - June 2003
+
+\documentclass{article}
+\usepackage{times}
+\usepackage{mathptmx}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{lipsum}
+\usepackage{courier}
+% \usepackage{tabularx}
+\usepackage[export]{adjustbox}
+% \usepackage[landscape]{pdfpages}
+\usepackage{enumitem}
+\usepackage{spreadtab}
+% \usepackage{enumerate}
+
+
+\graphicspath{ {images/} }
+
+\usepackage[dvipsnames]{xcolor}  %% Allow color names
+\lstset
+{ %Formatting for code in appendix
+  belowcaptionskip=1\baselineskip,
+  xleftmargin=\parindent,
+  language=Java,   %% Change this to whatever you write in
+  breaklines=true, %% Wrap long lines
+  basicstyle=\ttfamily,
+  % numbers=left,
+  % stepnumber=1,
+  commentstyle=\itshape\color{Gray},
+  stringstyle=\color{Orange},
+  keywordstyle=\bfseries\color{WildStrawberry},
+  identifierstyle=\color{Blue},
+}
+\usepackage{titlesec}
+\usepackage{amssymb}
+\newenvironment{claim}[1]{\par\noindent\underline{Claim:}\space#1}{}
+\newenvironment{claimproof}[1]{\par\noindent\underline{Proof:}\space#1}{\leavevmode\unskip\penalty9999 \hbox{}\nobreak\hfill\quad\hbox{$\blacksquare$}}
+
+\setcounter{secnumdepth}{4}
+
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\begin{document}
+
+% Article top matter
+\title{\textsc{EN 600.425 Declarative Methods \\ - Term Project Proposal}} %\LaTeX is a macro for printing the Latex logo
+\author{Guoye Zhang, Qiang Zhang\\
+        % \texttt{Hopkins ID: 92CC3E}
+        }  %\texttt formats the text to a typewriter style font
+\date{\today}  %\today is replaced with the current date
+\maketitle
+
+\section{Introduction}
+For the term project, we have two choices in mind and we have not decided to narrow down to either of them. 
+\section{Toward Compiled Little Languages}
+
+Most current little languages are represented in a textual format, ranging from the most prominent languages such as HTML/CSS and SQL to particularly domain-specific ones like CNF for SAT solvers. Despite the indubitable human-readability such textual little languages afford, correct processing of them, on the other hand, can be a major chanllenge for programmers. Every now and then, programmers attempt to use regular expression to parse HTML which is not a regular language; countless security vulnerabilities arise from lack of escaping; even large CDN provider Cloudflare recently leaked a large amount of customer information due to unclosed HTML tag. It is time to reconsider using plain text within communications between machines.\\
+
+We hope to build a compiler toolkit for little languages which provide fast and secure manipulation of data and semantics, as well as translation between binary and textual representations.\\
+
+Our idea is inspired by two popular projects --- LLVM and Protobuf. LLVM is a collection of modular and reusable compiler toolchain for general purpose languages. It has many front-ends, optimizers, and back-ends, and it pioneers the concept of intermediate representation (IR). Instead of machine code, our compiler produces something similar to IR that represents data and semantics. Since we are targeting little languages, we intend that back-end be provided by the user.\\
+
+Protobuf is an extensible mechanism for serializing structured data. It is language and platform neutral, which is achieved by generating code in any supported programming languages and inserting them into programs. However, Protobuf does not allow anything more complex than the combination of basic data types. We hope to use a similar language-independent approach, but break some of Protobuf's current limitations. Beside data, we are building support for semantics into the serialized format.\\
+
+Workflow of using our compiler toolkit:
+\begin{enumerate}
+  \item Write the description for your little language
+  \item Choose a supported programming language to write your program
+  \item Use our toolkit to generate code to process your little language
+  \item Add the generated code to your program
+\end{enumerate}
+
+An example:
+\begin{lstlisting}
+   CNF format description -> +------------------+
+Programming language is C -> | Compiler Toolkit | -> C code to process CNF
+     Other configurations -> +------------------+
+\end{lstlisting}
+
+We intend to exploit the full power of binary representation to provide not only efficient encoding of little languages but also simpler interfaces for programmers to work with them, in hope of enabling more complex operations like comparison and optimization.
+
+
+\section{Generalized GUI for Describing Declarative Languages}
+
+Inventing and validating a declarative language is hard. A large percentage of them don't even have any documentations. It is error-prone to write code for printing and parsing declarative languages without formal specifications.\\
+
+We are hoping to build a graphical user interface for describing declarative languages. We use GUI to create and visualize the rules for the language, then automatically detect conflict and ambiguities within rules.\\
+
+Using those rules, we can process and visualize any expression in this language. We can even produce parser in supported programming languages.
+
+
+
+
+
+
+
+
+% \begin{thebibliography}{9}
+% %The \bibitem is to start a new reference.  Ensure that the cite_key is
+% %unique.  You don't need to put each element on a new line, but I did
+% %simply for readability.
+%     \bibitem{RFC2616}
+%       RFC 2616\\% \href{http://www.texample.net/tikz/resources/}{Tex Example Site}
+
+
+% \end{thebibliography} %Must end the environment
+
+
+\end{document}  %End of document.
