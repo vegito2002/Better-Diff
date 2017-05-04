@@ -38,6 +38,9 @@ public class Main {
 			readError();
 		}
 		
+		Diff diff = new Diff(files);
+		diff.process();
+		
 		Tokenizer tokenizer = new WhitespaceTokenizer();
 		int hashBit = 1;
 		int seed = 0;
