@@ -91,17 +91,20 @@ public class Diff {
 			Paragraph p = iter.next();
 			int f = p.getFile();
 			if (output[f] == null) output[f] = "<h3>" + filenames[f] + "</h3><div class=\"mdiffinner\">";
-			String h = "<pre id=\"mdiff" + f + "-" + p.getStart() + "\" class=\"mdiffp\"";
+			String h = "<pre id=\"mdiff" + f + "-" + p.getStart() + "\" class=\"mdiffp";
 			Paragraph o = p.getOrigin();
-			if (o != null) h += " data-origin-file=\"" + o.getFile() + "\" data-origin-line=\"" + o.getStart() + "\"";
-			h += ">";
+			if (o != null) {
+				h += "\" data-origin-file=\"" + o.getFile() + "\" data-origin-line=\"" + o.getStart() + "\">";
+			} else {
+				h += " mdiffadded\">";
+			}
 			for (int i = p.getStart(); i < p.getEnd(); i++) {
 				h += StringEscapeUtils.escapeHtml4(filelines[f][i]) + "\n";
 			}
 			h += "</pre>";
 			output[f] += h;
 		}
-		for (int i = 1; i < filenames.length; i++) {
+		for (int i = 0; i < filenames.length; i++) {
 			output[i] += "</div>";
 		}
 		
@@ -111,7 +114,7 @@ public class Diff {
 				Files.copy(new File("template.html").toPath(), new File(path).toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} catch (Exception e) {}
 			try (PrintWriter w = new PrintWriter(new BufferedWriter(new FileWriter(path, true)))) {
-				for (int j = 1; j < filenames.length; j++) {
+				for (int j = 0; j < filenames.length; j++) {
 					w.print("<div id=\"mdiff" + j + "\" class=\"mdiffleft\", style=\"display: none;\">");
 					w.print(output[j]);
 					w.print("</div>");
