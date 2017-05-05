@@ -2,20 +2,19 @@ package main;
 import org.codelibs.minhash.MinHash;
 
 public class Paragraph {
-	private String filename;
-	private int start, end;
+	private int file, start, end;
 	private byte[] hash;
 	private Paragraph origin;
 	
-	public Paragraph(String filename, int start, int end, byte[] hash) {
-		this.filename = filename;
+	public Paragraph(int file, int start, int end, byte[] hash) {
+		this.file = file;
 		this.start = start;
 		this.end = end;
 		this.hash = hash;
 	}
 	
-	public String getFilename() {
-		return this.filename;
+	public int getFile() {
+		return this.file;
 	}
 	
 	public int getStart() {

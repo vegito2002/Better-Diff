@@ -38,7 +38,10 @@ public class Main {
 			readError();
 		}
 		
-		Diff diff = new Diff(filenames, files, html);
+		Diff diff = new Diff(filenames, files);
 		diff.process();
+		if (html) {
+			diff.outputHTML();
+		}
 	}
 }
