@@ -256,9 +256,17 @@ pre code {
 }
 
 .mdiffright .mdiffadded {
-    background-color: #9af89e;
+    background-color: #eaffea;
 }
 
 .mdiffselected {
-    background-color: #f8f8ae;
+    background-color: #fdffd7;
+}
+
+.mdiffright .mdiffselected span {
+    background-color: #a6f3a6;
+}
+
+.mdiffleft .mdiffselected span {
+    background-color: #f8cbcb;
 }

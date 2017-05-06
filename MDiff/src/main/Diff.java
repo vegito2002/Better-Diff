@@ -102,44 +102,88 @@ public class Diff {
 		files = null;
 	}
 	
+	private String generateParagraphHTML(Paragraph p, boolean[] diff) {
+		int f = p.getFile(), pos = 0;
+		String h = "<pre id=\"mdiff" + f + "-" + p.getStart() + "\" class=\"mdiffp";
+		Paragraph o = p.getOrigin();
+		if (o != null) {
+			h += "\" data-origin-file=\"" + o.getFile() + "\" data-origin-line=\"" + o.getStart() + "\">";
+		} else {
+			h += " mdiffadded\">";
+		}
+		for (int i = p.getStart(); i < p.getEnd(); i++) {
+			h += "<p>";
+			int last = 0;
+			boolean current = true;
+			for (int j = 0; j < filelines[f][i].length(); j++) {
+				if (diff != null && current != diff[pos + j]) {
+					String part = filelines[f][i].substring(last, j);
+					String escaped = StringEscapeUtils.escapeHtml4(part);
+					h += escaped.replace(" ", "&nbsp;");
+					if (current) {
+						h += "<span>";
+					} else {
+						h += "</span>";
+					}
+					last = j;
+					current = !current;
+				}
+			}
+			String part = filelines[f][i].substring(last);
+			String escaped = StringEscapeUtils.escapeHtml4(part);
+			h += escaped.replace(" ", "&nbsp;");
+			if (!current) h += "</span>";
+			h += "</p>";
+			pos += filelines[f][i].length() + 1;
+		}
+		return h + "</pre>";
+	}
+	
 	public void outputHTML() {
-		String[] output = new String[filenames.length];
+		Map<Integer, List<Pair<Integer, String>>> output = new HashMap<Integer, List<Pair<Integer, String>>>();
+		List<Map<Integer, Paragraph>> files = new ArrayList<Map<Integer, Paragraph>>();
 		Iterator<Paragraph> iter = paragraphs.descendingIterator();
 		while (iter.hasNext()) {
 			Paragraph p = iter.next();
 			int f = p.getFile();
-			if (output[f] == null) output[f] = "<h3>" + filenames[f] + "</h3><div class=\"mdiffinner\">";
-			String h = "<pre id=\"mdiff" + f + "-" + p.getStart() + "\" class=\"mdiffp";
-			Paragraph o = p.getOrigin();
-			if (o != null) {
-				h += "\" data-origin-file=\"" + o.getFile() + "\" data-origin-line=\"" + o.getStart() + "\">";
-			} else {
-				h += " mdiffadded\">";
-			}
-			for (int i = p.getStart(); i < p.getEnd(); i++) {
-				h += StringEscapeUtils.escapeHtml4(filelines[f][i]) + "\n";
-			}
-			h += "</pre>";
-			output[f] += h;
+			if (files.size() <= f) files.add(new HashMap<Integer, Paragraph>());
+			files.get(f).put(p.getStart(), p);
+			if (!output.containsKey(f)) output.put(f, new ArrayList<Pair<Integer, String>>());
+			output.get(f).add(Pair.of(p.getStart(), generateParagraphHTML(p, p.getAdd())));
 		}
-		for (int i = 0; i < filenames.length; i++) {
-			output[i] += "</div>";
-		}
-		
-		for (int i = 1; i < filenames.length; i++) {
+		for (int i = 0; i < files.size(); i++) {
+			Map<Integer, Map<Integer, boolean[]>> origin = new HashMap<Integer, Map<Integer, boolean[]>>();
+			for (Paragraph p : files.get(i).values()) {
+				Paragraph o = p.getOrigin();
+				if (o == null) continue;
+				int f = o.getFile();
+				if (!origin.containsKey(f)) origin.put(f, new HashMap<Integer, boolean[]>());
+				origin.get(f).put(o.getStart(), p.getDelete());
+			}
+			
 			String path = filenames[i] + ".html";
 			try {
 				Files.copy(new File("template.html").toPath(), new File(path).toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} catch (Exception e) {}
 			try (PrintWriter w = new PrintWriter(new BufferedWriter(new FileWriter(path, true)))) {
-				for (int j = 0; j < filenames.length; j++) {
-					w.print("<div id=\"mdiff" + j + "\" class=\"mdiffleft\", style=\"display: none;\">");
-					w.print(output[j]);
-					w.print("</div>");
+				for (Map.Entry<Integer, Map<Integer, boolean[]>> e : origin.entrySet()) {
+					w.print("<div id=\"mdiff" + e.getKey() + "\" class=\"mdiffleft\", style=\"display: none;\"></h3>" + filenames[e.getKey()] + "</h3><div class=\"mdiffinner\">");
+					for (Pair<Integer, String> p : output.get(e.getKey())) {
+						boolean[] diff = e.getValue().get(p.getLeft());
+						if (diff == null) {
+							w.print(p.getRight());
+						} else {
+							Paragraph o = files.get(e.getKey()).get(p.getLeft());
+							w.print(generateParagraphHTML(o, diff));
+						}
+					}
+					w.print("</div></div>");
 				}
-				w.print("</div><div class=\"mdiffcolumn\"><div class=\"mdiffright\">");
-				w.print(output[i]);
-				w.print("</div></div></body></html>");
+				w.print("</div><div class=\"mdiffcolumn\"><div class=\"mdiffright\"></h3>" + filenames[i] + "</h3><div class=\"mdiffinner\">");
+				for (Pair<Integer, String> p : output.get(i)) {
+					w.print(p.getRight());
+				}
+				w.print("</div></div></div></body></html>");
 			} catch (Exception e) {}
 		}
 	}
