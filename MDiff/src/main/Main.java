@@ -42,6 +42,8 @@ public class Main {
 		diff.process();
 		if (html) {
 			diff.outputHTML();
+		} else {
+			diff.outputMDiff();
 		}
 	}
 }

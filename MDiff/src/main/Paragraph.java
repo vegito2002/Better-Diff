@@ -5,6 +5,9 @@ public class Paragraph {
 	private int file, start, end;
 	private byte[] hash;
 	private Paragraph origin;
+	private boolean same;
+	private boolean[] delete;
+	private boolean[] add;
 	
 	public Paragraph(int file, int start, int end, byte[] hash) {
 		this.file = file;
@@ -35,5 +38,29 @@ public class Paragraph {
 
 	public void setOrigin(Paragraph origin) {
 		this.origin = origin;
+	}
+	
+	public void setSame() {
+		same = true;
+	}
+	
+	public boolean isSame() {
+		return same;
+	}
+
+	public boolean[] getDelete() {
+		return delete;
+	}
+
+	public void setDelete(boolean[] delete) {
+		this.delete = delete;
+	}
+
+	public boolean[] getAdd() {
+		return add;
+	}
+
+	public void setAdd(boolean[] add) {
+		this.add = add;
 	}
 }

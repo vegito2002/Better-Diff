@@ -5,6 +5,7 @@ import java.util.*;
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.core.*;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.codelibs.minhash.MinHash;
 
 public class Diff {
@@ -47,10 +48,27 @@ public class Diff {
 			
 			if (max > 0.8) {
 				p.setOrigin(similar);
+				String str1 = getParagraph(similar), str2 = getParagraph(p);
+				Pair<boolean[], boolean[]> diff = Distance.processCharacter(str1, str2);
+				if (diff == null) {
+					p.setSame();
+				} else {
+					p.setDelete(diff.getLeft());
+					p.setAdd(diff.getRight());
+				}
 			}
 			
 			paragraphs.addFirst(p);
 		} catch (Exception e) {}
+	}
+	
+	private String getParagraph(Paragraph p) {
+		String[] lines = filelines[p.getFile()];
+		String s = "";
+		for (int i = p.getStart(); i < p.getEnd(); i++) {
+			s += lines[i] + "\n";
+		}
+		return s;
 	}
 	
 	public void process() {
@@ -124,5 +142,69 @@ public class Diff {
 				w.print("</div></div></body></html>");
 			} catch (Exception e) {}
 		}
+	}
+	
+	public void outputMDiff() {
+		Iterator<Paragraph> iter = paragraphs.descendingIterator();
+		PrintWriter w = null;
+		int current = -1, line = 0;
+		while (iter.hasNext()) {
+			Paragraph p = iter.next();
+			int f = p.getFile();
+			if (current != f) {
+				String path = filenames[f] + ".mpatch";
+				try {
+					if (w != null) w.close();
+					w = new PrintWriter(new BufferedWriter(new FileWriter(path)));
+				} catch (Exception e) {}
+				current = f;
+				line = 0;
+			}
+			for (int i = line; i < p.getStart(); i++) {
+				w.println("  " + filelines[f][i]);
+			}
+			Paragraph o = p.getOrigin();
+			if (o == null) {
+				for (int i = p.getStart(); i < p.getEnd(); i++) {
+					w.println("  " + filelines[f][i]);
+				}
+			} else {
+				int of = o.getFile();
+				if (p.isSame()) {
+					w.println("== " + filenames[of] + " " + o.getStart());
+					for (int i = p.getStart(); i < p.getEnd(); i++) {
+						w.println("  " + filelines[f][i]);
+					}
+					w.println("--");
+				} else {
+					boolean[] d1 = p.getDelete(), d2 = p.getAdd();
+					int pos = 0;
+					w.println("<< " + filenames[of] + " " + o.getStart());
+					for (int i = o.getStart(); i < o.getEnd(); i++) {
+						w.println("  " + filelines[of][i]);
+						w.print("  ");
+						for (int j = 0; j < filelines[of][i].length(); j++) {
+							w.print(d1[pos + j] ? ' ' : '-');
+						}
+						pos += filelines[of][i].length() + 1;
+						w.println();
+					}
+					pos = 0;
+					w.println(">> " + p.getStart());
+					for (int i = p.getStart(); i < p.getEnd(); i++) {
+						w.println("  " + filelines[f][i]);
+						w.print("  ");
+						for (int j = 0; j < filelines[f][i].length(); j++) {
+							w.print(d2[pos + j] ? ' ' : '+');
+						}
+						pos += filelines[f][i].length() + 1;
+						w.println();
+					}
+					w.println("--");
+				}
+			}
+			line = p.getEnd();
+		}
+		if (w != null) w.close();
 	}
 }
