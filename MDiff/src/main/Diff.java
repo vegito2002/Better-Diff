@@ -217,15 +217,15 @@ public class Diff {
 			} else {
 				int of = o.getFile();
 				if (p.isSame()) {
-					w.println("== " + filenames[of] + " " + o.getStart());
+					w.println("= " + filenames[of] + ":" + o.getStart());
 					for (int i = p.getStart(); i < p.getEnd(); i++) {
 						w.println("  " + filelines[f][i]);
 					}
-					w.println("--");
+					w.println("---");
 				} else {
 					boolean[] d1 = p.getDelete(), d2 = p.getAdd();
 					int pos = 0;
-					w.println("<< " + filenames[of] + " " + o.getStart());
+					w.println("< " + filenames[of] + ":" + o.getStart());
 					for (int i = o.getStart(); i < o.getEnd(); i++) {
 						w.println("  " + filelines[of][i]);
 						w.print("  ");
@@ -236,7 +236,7 @@ public class Diff {
 						w.println();
 					}
 					pos = 0;
-					w.println(">> " + p.getStart());
+					w.println("> " + p.getStart());
 					for (int i = p.getStart(); i < p.getEnd(); i++) {
 						w.println("  " + filelines[f][i]);
 						w.print("  ");
@@ -246,7 +246,7 @@ public class Diff {
 						pos += filelines[f][i].length() + 1;
 						w.println();
 					}
-					w.println("--");
+					w.println("---");
 				}
 			}
 			line = p.getEnd();
