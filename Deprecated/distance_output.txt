@@ -1,0 +1,5 @@
+Results for comparing:
+<a><b>
+<b><a>
+ is:
+4 +:|no_change|-:a|+:b|no_change|no_change|-:b|+:a|no_change

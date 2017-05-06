@@ -1,0 +1,80 @@
+% personal latex template
+
+% vegito2002@gmail.com
+\documentclass{article}
+\usepackage{times}
+\usepackage{mathptmx}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{lipsum}
+\usepackage{courier}
+% \usepackage{tabularx}
+\usepackage[export]{adjustbox}
+% \usepackage[landscape]{pdfpages}
+\usepackage{enumitem}
+\usepackage{spreadtab}
+% \usepackage{enumerate}
+
+
+\graphicspath{ {images/} }
+
+\usepackage[dvipsnames]{xcolor}  %% Allow color names
+\lstset
+{ %Formatting for code in appendix
+  belowcaptionskip=1\baselineskip,
+  xleftmargin=\parindent,
+  language=Java,   %% Change this to whatever you write in
+  breaklines=true, %% Wrap long lines
+  basicstyle=\ttfamily,
+  % numbers=left,
+  % stepnumber=1,
+  commentstyle=\itshape\color{Gray},
+  stringstyle=\color{Orange},
+  keywordstyle=\bfseries\color{WildStrawberry},
+  identifierstyle=\color{Blue},
+}
+\usepackage{titlesec}
+\usepackage{amssymb}
+\newenvironment{claim}[1]{\par\noindent\underline{Claim:}\space#1}{}
+\newenvironment{claimproof}[1]{\par\noindent\underline{Proof:}\space#1}{\leavevmode\unskip\penalty9999 \hbox{}\nobreak\hfill\quad\hbox{$\blacksquare$}}
+
+\setcounter{secnumdepth}{4}
+
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\begin{document}
+
+% Article top matter
+\title{\textsc{EN 600.425 Declarative Methods \\ - Term Project Writeup}\\ \textbf{\textsc{Better } \texttt{diff}}} %\LaTeX is a macro for printing the Latex logo
+\author{Guoye Zhang, Qiang Zhang\\
+        % \texttt{Hopkins ID: 92CC3E}
+        }  %\texttt formats the text to a typewriter style font
+\date{\today}  %\today is replaced with the current date
+\maketitle
+
+\section{Introduction}
+The utility \texttt{diff} is commonly used in all scenarios, whether for programming purpose or in general text editing circumstances. This legacy utility is based on the renowned \textit{Edit Distance} algorithm, which in essence is a Dynamic Programming algorithm. 
+
+% \begin{thebibliography}{9}
+% %The \bibitem is to start a new reference.  Ensure that the cite_key is
+% %unique.  You don't need to put each element on a new line, but I did
+% %simply for readability.
+%     \bibitem{RFC2616}
+%       RFC 2616\\% \href{http://www.texample.net/tikz/resources/}{Tex Example Site}
+
+
+% \end{thebibliography} %Must end the environment
+
+
+\end{document}  %End of document.
