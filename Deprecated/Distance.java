@@ -1,6 +1,9 @@
 import java.io.*;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Distance {
     static Map<String,String> table = new HashMap<>();
@@ -18,13 +21,17 @@ public class Distance {
 
         String result = "";
         if (m == 0) {
-            result = String.format("%d +:%s",n, str2.substring(0,n));
+            String indexStr = "";
+            for (int i = 0; i < n; i++) indexStr += String.format("@%d", i);
+            result = String.format("%d +:%s$%s",n, str2.substring(0,n), indexStr);
             table.put(thisKey, result);
             return result;
         }
           
         if (n == 0) {
-            result = String.format("%d -:%s",m, str1.substring(0,m));
+            String indexStr = "";
+            for (int i = 0; i < m; i++) indexStr += String.format("@%d", i);
+            result = String.format("%d -:%s$%s",m, str1.substring(0,m), indexStr);
             table.put(thisKey, result);
             return result;
         }
@@ -35,11 +42,11 @@ public class Distance {
                 if ( m > n ) {
                     String previousResult = editDist(str1.substring(0,m-1),str2.substring(0,n),m-1,n);
                     String[] previousResults = previousResult.split(" ");
-                    result1 = String.format("%d %s", Integer.parseInt(previousResults[0]) + 1, previousResults[1] + "|-:>");
+                    result1 = String.format("%d %s", Integer.parseInt(previousResults[0]) + 1, String.format("%s@%d", previousResults[1] + "|-:>$", m-1));
                 } else if (m < n) {
                     String previousResult = editDist(str1.substring(0,m), str2.substring(0,n-1), m, n-1);
                     String[] previousResults = previousResult.split(" ");
-                    result1 = String.format("%d %s", Integer.parseInt(previousResults[0]) + 1, previousResults[1] + "|+:>");
+                    result1 = String.format("%d %s", Integer.parseInt(previousResults[0]) + 1, String.format("%s@%d", previousResults[1] + "|+:>$", n-1));
                 } 
                 // else {
                 //     String[] previousResults1 = editDist(str1.substring(0,m-1), str2.substring(0,n), m-1, n);
@@ -49,7 +56,6 @@ public class Distance {
                 //     Integer distance2 = Integer.parseInt(previousResults2[0]);
                 //     Integer distance3 = Integer.parseInt(previousResults3[0]);
                 //     int minDistance = min(distance1, distance2, distance3);
-
                 // }
             }
             String previousResult = editDist(str1.substring(0,m-1), str2.substring(0,n-1), m-1, n-1);
@@ -80,14 +86,70 @@ public class Distance {
         int minNext = min(nextInsert, nextRemove, nextReplace);
 
         if (minNext == nextInsert ) {
-            result = String.format("%d %s", Integer.parseInt(previousInsertResults[0])+1, previousInsertResults[1] + String.format("|+:%s", str2.charAt(n-1)));
+            result = String.format("%d %s", Integer.parseInt(previousInsertResults[0])+1, previousInsertResults[1] + String.format("|+:%s$@%d", str2.charAt(n-1), n-1));
         } else if (minNext == nextRemove) {
-            result = String.format("%d %s", Integer.parseInt(previousRemoveResults[0])+1, previousRemoveResults[1] + String.format("|-:%s", str1.charAt(m-1)));
+            result = String.format("%d %s", Integer.parseInt(previousRemoveResults[0])+1, previousRemoveResults[1] + String.format("|-:%s$@%d", str1.charAt(m-1), m-1));
         } else if (minNext == nextReplace) {
-            result = String.format("%d %s", Integer.parseInt(previousReplaceResults[0])+2, previousReplaceResults[1] + String.format("|-:%s|+:%s", str1.charAt(m-1), str2.charAt(n-1)));
+            result = String.format("%d %s", Integer.parseInt(previousReplaceResults[0])+2, previousReplaceResults[1] + String.format("|-:%s$@%d|+:%s$@%d", str1.charAt(m-1), m-1, str2.charAt(n-1), n-1));
         }
         table.put(thisKey, result);
         return result;
+    }
+
+    public static String calculateEditDistAndVisualize(String str1, String str2) {
+        String rawResult = editDist(str1,str2,str1.length(), str2.length());
+        String[] fields = rawResult.split(" ");
+        int distance = Integer.parseInt(fields[0]);
+        String[] edits = fields[1].split("\\|");
+
+        String[] editsOfStr1 = new String[str1.length()];
+        Arrays.fill(editsOfStr1, " ");
+        String[] editsOfStr2 = new String[str2.length()];
+        Arrays.fill(editsOfStr2, " ");
+
+        for (int i = 0; i < edits.length; i++) {
+            if (edits[i].equals("no_change")) continue;
+            String[] parseResult = parseEdit(edits[i]);
+
+            if (parseResult.length == 1) continue; 
+            String sign = parseResult[0];
+            String[] indices = Arrays.copyOfRange(parseResult, 1, parseResult.length);
+
+            for (String j : indices) {
+                int indexNum = Integer.parseInt(j);
+                if (sign.equals("-")) {
+                    editsOfStr1[indexNum] = "-";
+                } else if (sign.equals("+")) {
+                    editsOfStr2[indexNum] = "+";
+                }
+            }
+        }
+
+        String annotation1 = String.join("", editsOfStr1);
+        String annotation2 = String.join("", editsOfStr2);
+
+        String result = "Results of comparison:\n"
+                    + "Total cost (edit distance) is: " + distance + "\n"
+                    + "Details of edits:\n"
+                    + "Edits on the first string:\n"
+                    + str1 + "\n" + annotation1 + "\n"
+                    + "Edits on the second string:\n"
+                    + str2 + "\n" + annotation2 + "\n";
+        return result;
+    }
+
+    private static String[] parseEdit(String edit) {
+        List<String> result = new ArrayList<>();
+        result.add(Character.toString(edit.charAt(0)));
+        String[] split1 = edit.split("\\$");
+        if (split1.length > 1) {
+            String[] split2 = split1[1].split("\\@");
+            for (int i = 1; i < split2.length; i++) {
+                result.add(split2[i]);
+            }
+        }
+        String[] resultAr = new String[result.size()];
+        return result.toArray(resultAr);
     }
  
     public static void main(String args[]) {
@@ -119,10 +181,15 @@ public class Distance {
             testStrings[5] = "<a><b><c>";
             testStrings[6] = "<c><a><b>";
 
+            testStrings[7] = "<a><b><c>";
+            testStrings[8] = "<a><c>";
+
+            testStrings[9] = "<a><b>";
+            testStrings[10] = "<b>";
+
             String str1 = testStrings[Integer.parseInt(args[0])];
             String str2 = testStrings[Integer.parseInt(args[1])];
-            System.out.printf("Results for comparing:%n%s%n%s%n is:%n", str1,str2);
-            System.out.println(editDist(str1,str2,str1.length(), str2.length()));
+            System.out.println(calculateEditDistAndVisualize(str1, str2));
         } catch (Exception e) {e.printStackTrace();}
     }
 }
