@@ -275,6 +275,6 @@ pre code {
     display: none;
 }
 
-h6 {
+.mdiffright h6 {
     margin-bottom: -1.5em;
 }
