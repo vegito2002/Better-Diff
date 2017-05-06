@@ -270,3 +270,11 @@ pre code {
 .mdiffleft .mdiffselected span {
     background-color: #f8cbcb;
 }
+
+.mdiffleft h6 {
+    display: none;
+}
+
+h6 {
+    margin-bottom: -1.5em;
+}

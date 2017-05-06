@@ -104,8 +104,10 @@ public class Diff {
 	
 	private String generateParagraphHTML(Paragraph p, boolean[] diff) {
 		int f = p.getFile(), pos = 0;
-		String h = "<pre id=\"mdiff" + f + "-" + p.getStart() + "\" class=\"mdiffp";
 		Paragraph o = p.getOrigin();
+		String h = "";
+		if (o != null) h += "<h6>From " + filenames[o.getFile()] + ":" + o.getStart() + "</h6>";
+		h += "<pre id=\"mdiff" + f + "-" + p.getStart() + "\" class=\"mdiffp";
 		if (o != null) {
 			h += "\" data-origin-file=\"" + o.getFile() + "\" data-origin-line=\"" + o.getStart() + "\">";
 		} else {
@@ -167,7 +169,7 @@ public class Diff {
 			} catch (Exception e) {}
 			try (PrintWriter w = new PrintWriter(new BufferedWriter(new FileWriter(path, true)))) {
 				for (Map.Entry<Integer, Map<Integer, boolean[]>> e : origin.entrySet()) {
-					w.print("<div id=\"mdiff" + e.getKey() + "\" class=\"mdiffleft\", style=\"display: none;\"></h3>" + filenames[e.getKey()] + "</h3><div class=\"mdiffinner\">");
+					w.print("<div id=\"mdiff" + e.getKey() + "\" class=\"mdiffleft\", style=\"display: none;\"><h3>" + filenames[e.getKey()] + "</h3><div class=\"mdiffinner\">");
 					for (Pair<Integer, String> p : output.get(e.getKey())) {
 						boolean[] diff = e.getValue().get(p.getLeft());
 						if (diff == null) {
@@ -179,7 +181,7 @@ public class Diff {
 					}
 					w.print("</div></div>");
 				}
-				w.print("</div><div class=\"mdiffcolumn\"><div class=\"mdiffright\"></h3>" + filenames[i] + "</h3><div class=\"mdiffinner\">");
+				w.print("</div><div class=\"mdiffcolumn\"><div class=\"mdiffright\"><h3>" + filenames[i] + "</h3><div class=\"mdiffinner\">");
 				for (Pair<Integer, String> p : output.get(i)) {
 					w.print(p.getRight());
 				}
