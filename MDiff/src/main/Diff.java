@@ -172,7 +172,7 @@ public class Diff {
 			if (files.size() <= f) files.add(new HashMap<Integer, Paragraph>());
 			files.get(f).put(p.getStart(), p);
 			if (!output.containsKey(f)) output.put(f, new ArrayList<Pair<Integer, String>>());
-			output.get(f).add(Pair.of(p.getStart(), generateParagraphHTML(p, p.getAdd())));
+			output.get(f).add(Pair.of(p.getStart(), generateParagraphHTML(p, null)));
 		}
 		for (int i = 0; i < files.size(); i++) {
 			Map<Integer, Map<Integer, boolean[]>> origin = new HashMap<Integer, Map<Integer, boolean[]>>();
@@ -186,8 +186,8 @@ public class Diff {
 			
 			String path = filenames[i] + ".html";
 			try {
-				Files.copy(new File("template.html").toPath(), new File(path).toPath(), StandardCopyOption.REPLACE_EXISTING);
-			} catch (Exception e) {}
+				Files.copy(Paths.get(getClass().getResource("/resources/template.html").toURI()), new File(path).toPath(), StandardCopyOption.REPLACE_EXISTING);
+			} catch (Exception e) {e.printStackTrace();}
 			try (PrintWriter w = new PrintWriter(new BufferedWriter(new FileWriter(path, true)))) {
 				for (Map.Entry<Integer, Map<Integer, boolean[]>> e : origin.entrySet()) {
 					w.print("<div id=\"mdiff" + e.getKey() + "\" class=\"mdiffleft\", style=\"display: none;\"><h3>" + filenames[e.getKey()] + "</h3><div class=\"mdiffinner\">");
@@ -203,8 +203,8 @@ public class Diff {
 					w.print("</div></div>");
 				}
 				w.print("</div><div class=\"mdiffcolumn\"><div class=\"mdiffright\"><h3>" + filenames[i] + "</h3><div class=\"mdiffinner\">");
-				for (Pair<Integer, String> p : output.get(i)) {
-					w.print(p.getRight());
+				for (Paragraph p : files.get(i).values()) {
+					w.print(generateParagraphHTML(p, p.getAdd()));
 				}
 				w.print("</div></div></div></body></html>");
 			} catch (Exception e) {}
