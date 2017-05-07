@@ -1,13 +1,14 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
 \BOOKMARK [2][-]{subsection.1.1}{Algorithmic Optimization}{section.1}% 2
 \BOOKMARK [2][-]{subsection.1.2}{Multi-file Referencing}{section.1}% 3
-\BOOKMARK [2][-]{subsection.1.3}{Running Instruction}{section.1}% 4
+\BOOKMARK [2][-]{subsection.1.3}{Running Instructions \046 Presentation}{section.1}% 4
 \BOOKMARK [1][-]{section.2}{First Step: Predecessor Matching}{}% 5
 \BOOKMARK [2][-]{subsection.2.1}{Modelling}{section.2}% 6
 \BOOKMARK [2][-]{subsection.2.2}{Texutual Similarity and Textual Similarity}{section.2}% 7
 \BOOKMARK [2][-]{subsection.2.3}{Implementation}{section.2}% 8
-\BOOKMARK [1][-]{section.3}{Better diff: MDiff}{}% 9
+\BOOKMARK [1][-]{section.3}{Better diff: BetterDiff}{}% 9
 \BOOKMARK [2][-]{subsection.3.1}{Failed Attemp 1 with ZIMPL}{section.3}% 10
 \BOOKMARK [2][-]{subsection.3.2}{Suboptimal Attemp 2 with ZIMPL}{section.3}% 11
 \BOOKMARK [2][-]{subsection.3.3}{Suboptimal Attempt 3 with Backward-Chaining Dynamic Programming}{section.3}% 12
 \BOOKMARK [2][-]{subsection.3.4}{Final Attempt 4 with Forward-Chaining Dynamic Programming}{section.3}% 13
+\BOOKMARK [1][-]{section.4}{Conclusion}{}% 14
