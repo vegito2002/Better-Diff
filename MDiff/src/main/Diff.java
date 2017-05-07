@@ -54,7 +54,7 @@ public class Diff {
 				}
 			}
 			
-			if (max > 0.4) {
+			if (max > 0.8) {
 				p.setOrigin(similar);
 				String str1 = getParagraphString(similar), str2 = getParagraphString(p);
 				Pair<boolean[], boolean[]> diff = Distance.processCharacter(str1, str2);
