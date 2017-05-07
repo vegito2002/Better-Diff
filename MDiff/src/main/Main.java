@@ -32,7 +32,7 @@ public class Main {
 		if (html) {
 			diff.outputHTML();
 		} else {
-			diff.outputMDiff();
+			diff.outputMPatch();
 		}
 	}
 }

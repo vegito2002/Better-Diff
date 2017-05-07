@@ -5,8 +5,17 @@ public class Paragraph {
 	private int file, start, end;
 	private byte[] hash;
 	private Paragraph origin;
+	/**
+	 * Whether this paragraph is identical to its origin.
+	 */
 	private boolean same;
+	/**
+	 * Characters deleted from origin.
+	 */
 	private boolean[] delete;
+	/**
+	 * Characters added to this paragraph.
+	 */
 	private boolean[] add;
 	
 	public Paragraph(int file, int start, int end, byte[] hash) {

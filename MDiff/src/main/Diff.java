@@ -27,10 +27,17 @@ public class Diff {
 		analyzer = MinHash.createAnalyzer(tokenizer, hashBit, seed, num);
 	}
 	
-	private void processParagraph(int file, String[] lines, int start, int end) {
+	/**
+	 * Find the most similar paragraph to current paragraph.
+	 * @param file file number
+	 * @param lines file lines
+	 * @param start start line
+	 * @param end end line
+	 */
+	private void processParagraph(int file, int start, int end) {
 		String paragraph = "";
 		for (int i = start; i < end; i++) {
-			paragraph += lines[i] + "\n";
+			paragraph += filelines[file][i] + "\n";
 		}
 		try {
 			byte[] hash = MinHash.calculate(analyzer, paragraph);
@@ -48,7 +55,7 @@ public class Diff {
 			
 			if (max > 0.8) {
 				p.setOrigin(similar);
-				String str1 = getParagraph(similar), str2 = getParagraph(p);
+				String str1 = getParagraphString(similar), str2 = getParagraphString(p);
 				Pair<boolean[], boolean[]> diff = Distance.processCharacter(str1, str2);
 				if (diff == null) {
 					p.setSame();
@@ -62,7 +69,12 @@ public class Diff {
 		} catch (Exception e) {}
 	}
 	
-	private String getParagraph(Paragraph p) {
+	/**
+	 * Create a string for paragraph.
+	 * @param p paragraph
+	 * @return paragraph content
+	 */
+	private String getParagraphString(Paragraph p) {
 		String[] lines = filelines[p.getFile()];
 		String s = "";
 		for (int i = p.getStart(); i < p.getEnd(); i++) {
@@ -71,6 +83,9 @@ public class Diff {
 		return s;
 	}
 	
+	/**
+	 * Process all files.
+	 */
 	public void process() {
 		filelines = new String[files.length][];
 		for (int i = 0; i < files.length; i++) {
@@ -85,7 +100,7 @@ public class Diff {
 			for (int j = 1; j < lines.length; j++) {
 				if (lines[j].equals("")) {
 					if (paragraph) {
-						processParagraph(i, lines, start, j);
+						processParagraph(i, start, j);
 						paragraph = false;
 					}
 				} else {
@@ -96,12 +111,18 @@ public class Diff {
 				}
 			}
 			if (paragraph) {
-				processParagraph(i, lines, start, lines.length);
+				processParagraph(i, start, lines.length);
 			}
 		}
 		files = null;
 	}
 	
+	/**
+	 * Generate HTML for a paragraph with diff notation.
+	 * @param p paragraph
+	 * @param diff diff array
+	 * @return HTML
+	 */
 	private String generateParagraphHTML(Paragraph p, boolean[] diff) {
 		int f = p.getFile(), pos = 0;
 		Paragraph o = p.getOrigin();
@@ -138,6 +159,9 @@ public class Diff {
 		return h + "</pre>";
 	}
 	
+	/**
+	 * Print HTML for MDiff result
+	 */
 	public void outputHTML() {
 		Map<Integer, List<Pair<Integer, String>>> output = new HashMap<Integer, List<Pair<Integer, String>>>();
 		List<Map<Integer, Paragraph>> files = new ArrayList<Map<Integer, Paragraph>>();
@@ -187,7 +211,10 @@ public class Diff {
 		}
 	}
 	
-	public void outputMDiff() {
+	/**
+	 * Print patch for MDiff result
+	 */
+	public void outputMPatch() {
 		Iterator<Paragraph> iter = paragraphs.descendingIterator();
 		PrintWriter w = null;
 		int current = -1, line = 0;

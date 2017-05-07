@@ -1,11 +1,13 @@
 package main;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class Distance {
+	/**
+	 * Find pairs of brackets and quotes in a string.
+	 * @param s string
+	 * @return end indices mapped to start indices
+	 */
 	private static Map<Integer, Integer> findBlocks(String s) {
 		Map<Integer, Integer> endToStart = new HashMap<Integer, Integer>();
 		LinkedList<Pair<Integer, Character>> stack = new LinkedList<Pair<Integer, Character>>();
@@ -63,6 +65,14 @@ public class Distance {
 	
 	private enum Direction { DIAGONAL, UP, LEFT }
 	
+	/**
+	 * Whether it is good to go down the table (skip a character).
+	 * @param i current row
+	 * @param j current column
+	 * @param prev previous matrix
+	 * @param b pair map
+	 * @return good or bad
+	 */
 	private static boolean isGoodDown(int i, int j, Direction[][] prev, Map<Integer, Integer> b) {
 		i--;
 		Integer o = b.get(i);
@@ -85,6 +95,14 @@ public class Distance {
 		return d == Direction.UP;
 	}
 	
+	/**
+	 * Whether it is good to go to the right cell (skip a character).
+	 * @param i current row
+	 * @param j current column
+	 * @param prev previous matrix
+	 * @param b pair map
+	 * @return good or bad
+	 */
 	private static boolean isGoodRight(int i, int j, Direction[][] prev, Map<Integer, Integer> b) {
 		j--;
 		Integer o = b.get(j);
@@ -107,6 +125,12 @@ public class Distance {
 		return d == Direction.LEFT;
 	}
 	
+	/**
+	 * Find the longest common subsequence of two strings without breaking blocks.
+	 * @param str1 first string
+	 * @param str2 second string
+	 * @return boolean arrays of whether a character is in the LCS result
+	 */
 	public static Pair<boolean[], boolean[]> processCharacter(String str1, String str2) {
 		if (str1.equals(str2)) return null;
 		Map<Integer, Integer> b1 = findBlocks(str1), b2 = findBlocks(str2);
