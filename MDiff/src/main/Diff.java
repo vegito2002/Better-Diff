@@ -130,8 +130,7 @@ public class Diff {
 				}
 			}
 			String part = filelines[f][i].substring(last);
-			String escaped = StringEscapeUtils.escapeHtml4(part);
-			h += escaped.replace(" ", "&nbsp;");
+			h += StringEscapeUtils.escapeHtml4(part);
 			if (!current) h += "</span>";
 			h += "\n";
 			pos += filelines[f][i].length() + 1;
