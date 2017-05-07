@@ -163,9 +163,10 @@ The key idea behind implementing Objective 1, and the paragraph matching explain
 There are more subtlties to be clarified in this scheme. But we are leaving further elaboration for later part of this document. 
 
 \subsection{Running Instruction}
-By this point, enough information is provided to understand what this project hopes to deliver. In this section, we provide step by step instructions so that you can run the application now and see the results before going further. 
+By this point, enough information is provided to understand what this project hopes to deliver. In this section, we provide step by step instructions so that you can run the application now and see the results before going further. More elaborations follows.
 
-\section{First Step: Finding the Most Similar Paragraph}
+\section{First Step: Predecessor Matching}
+Definition first: \textbf{Predecessor Matching} refers to the process of finding, for each paragraph $p$ in each file $file_p$, amongst all the paragraphs that are contained in files with a lastly modification timestamp (which is assumed to be indicated by the filename number's value ordering) smaller than $file_p$. The concept of similarity is calculated by comparison of signature which is calculated by \textbf{Minhash}.
 \subsection{Modelling}
 As described in the previous section, our first goal is to be able to inspect a certain file $i$ in the folder, and immediately locate the most similar paragraph amongst all files in the folder, under assumptions:
 \begin{enumerate}
@@ -229,10 +230,92 @@ Back to the implementation of the application. In particular, we implement the p
   \end{itemize}
 \end{enumerate}
 
+This section is intended to focus on matching each paragraph with its predecessor, which is located by the \textit{most similar paragraph so far} scheme as decribed above. In the explanation, we assumed that we already have the utility of \texttt{MDiff} and includes its result for each paragraph together with the result of \textbf{Predecessor Matching}. Note that with these information stored, we can easily implement any visualization we want. We did implement a HTML-based visualization, but discussion shall be omitted. \\
+
+Although this section is named the \textbf{First Step}, we essentially introduced the big picture architecture of the project. With the skeleton built out, all that left is to fill in the muscles, especially a powerful one. The \textbf{Predecessor Matching} scheme based on \textbf{Minhash} provides all the inter-paragraph information we need. To get the intra-paragraph information, we need an algorithm to compare a paragraph itself to its predecessor paragraph. And the introduction of this algorithm is developed next.
+
+\section{Better \texttt{diff}: \texttt{MDiff}}
+Our optimization of the original \texttt{diff}, or Edit Distance algorithm, focuses on fixing Edit Distance algorism's ignorance of \textbf{brackets pairing}. Note that although we use the term \textit{brackets} here, we actually refer to parentheses, brackets, braces in general. This naming convention would apply for the rest of this document. \\
+
+In section 1 of \textit{Introduction}, we gave several examples where Edit Distance algorithm won't be able to find an optimal, or even reasonable result. In our improved algorithm of \texttt{MDiff}, we are able to deal with not only ignorance of brackets pairing, which in practice usually comes in the form of an editting that deleted or added only part of a paring of brackets, but also Edit Distance's ignorance of quote pairing. Special scenarios like escaping character are also considered.
+
+\subsection{Failed Attemp 1 with ZIMPL}
+This problem appears to us in the beginning as difficult to solve with Dynamic Programming which is adopted by the original Edit Distance algorithm. We decided to put what we learned in this course in practice and give ZIMPL a try. \\
+
+The files associated with this attempt are all put in the folder \textit{Deprecated} which is located at the root level:
+\begin{itemize}
+  \item \texttt{Script.java} is a trivial Java file to write input \texttt{txt} files for the program. \texttt{out.txt} is the temporary file of the Java file's output.
+  \item \texttt{old.txt} and \texttt{new.txt} are files to represent the old string and new string as the input of the program. Instead of expressing the inputs as a string, we expressed them as an array of integers. The encoding and decoding between should be straightforward.
+  \item \texttt{zimpl\_attemp1.zpl} is the program file. I would not recommend running it since it unfinished and erroneous in nature. 
+\end{itemize}
+
+The approach we took in this attempt is to encode each input string's each character as an integer. Then we try to use ZIMPL to decide a binary variable for such a digit. This binary variable plays a role similar to each \texttt{delete} and \texttt{add} boolean flag we used in the java program. \\
+
+The process should be easier to explain with an example. Note that in this attempt we have not come so far to addressing the ignorance of bracket pairing yet. Implementing Edit Distance alone seems difficult enough. With this simple example, we begin the discussion:
+\begin{lstlisting}
+Old String:
+#index, number
+1,1
+2,2
+3,3
+4,4
+5,5
+
+New String:
+#index, number
+1,1
+2,2
+3,4
+4,3
+5,5
+\end{lstlisting}
+The input string is stored in variables \texttt{old[M]} and the output string is stored in variables \texttt{new[N]}. For \texttt{M}, we also have the binary annotation variable \texttt{delete[M]}, and similarly \texttt{add[N]} for \texttt{N}. Note that the value of the binary variables are the opposite of the \texttt{delete} and \texttt{add} Java boolean flags mentioned above. Here, \texttt{delete[m]} is 1 iff the digit $m$ of the input string (digit array) should be deleted in a min-distance editting. Similarly, i\texttt{add[n]} should be 1 iff the digit $n$ should be seen as an added digit in a min-distance editting. \\
+
+With such definition, we derive another two variable definitions: \texttt{after\_delete[M]} and \texttt{before\_add[N]}.  \texttt{after\_delete[M]} is essentially \texttt{old[M]} after a mapping function being applied, which sets \texttt{after\_delete[m]} to 0 if \texttt{delete[m]} is 1 and to \texttt{old[m]} otherwise. \texttt{before\_add[N]} is defined in a similar way. It is intuitive to add a minimizing objective function, where the coefficients of \texttt{delete[M]} and \texttt{add[N]} are all positive. All that's left to now is to set up constraints. \\
+
+Note, to express that the editting determined by \texttt{delete[M]} and \texttt{add[N]} is a valid editting, which measn applying the indicated editting would correctly tranform \texttt{old[M]} to \texttt{new[N]}. Such a notion of valid editting shall be implemented with a constraint, which we might as well call \textbf{mapped equality} that could determine the following two strings equal (these two strings do conform to the example inputs listed above):
+\begin{lstlisting}
+after_delete[M]:
+1,2,0,4,5
+
+before_add[N]
+1,2,4,0,5
+\end{lstlisting}
+We first considered removing zeroes, which shortly turned out infeasible if we have a general case of \texttt{1,2,0,0,0,0,0,3,4} to process. We can't express the idea of a while-loop in ZIMPL, and it is infeasible to remove consecutive zeroes of arbitrary length. \\
+
+Even more, at this point, we realized that trying to further transforming \texttt{after\_delete[M]} and \texttt{before\_add[N]} is very hard. We then turned our mind to tuning the objective function with some soft constraints to lure the solver to the correct solution. These attempts all failed with some input cases so I will just briefly summarize here:
+\begin{itemize}
+  \item Objective function: the terms
+  \begin{lstlisting}
+  sum <m> in M: delete[m] + sum <n> in N: add[n]
+  \end{lstlisting}
+   are fixed in all the approaches below. 
+  \item Hard constraint: sum of \texttt{after\_delete[M]}  and \texttt{before\_add[N]} should be equal. This is only a necessary constraint to express the mapped equality, but not enough to be sufficient.
+  \item Hard constraint: the number of zeroes in each of \texttt{after\_delete[M]} and \texttt{before\_add[N]} is the same. Again, this is also only a necessary constraint. \\
+
+  And the below appraoches are mostly inspired by analysis of concret input cases:
+  \begin{itemize}
+    \item Approach 1: adding 
+    \begin{lstlisting}
+    - vabs(sum <m> in M: after_delete[m] * m - sum <n> in N: before_add[n] * n) / 2
+    \end{lstlisting}
+     to the objective function. However we tune the weight of this term, the solver would always be too eager to increase the number of deletions and additions to maximize its gain on this term.
+    \item Approach 2: derive \texttt{difference1[M]} for \texttt{after_delete[M]} with \texttt{difference1[m]} standing for \texttt{after_delete[m-1]} minus \texttt{after_delete[m]}. \texttt{difference2[N]} is defined similarly based on \texttt{before_add[N]}. Then we require that:
+    \begin{lstlisting}
+vabs(difference1[m]) == sum <n> in N: vabs(difference2[n])
+    \end{lstlisting}
+    We did know this constraint can't be enough. Though seems tempting, the solver, for various input cases, ends up finding clever roundabouts satisfying this constraint. 
+    \item Approach 3: \texttt{difference} variables defined as above. But now we add 
+    \begin{lstlisting}
++ vabs(sum <m> in M: vabs(difference1[m])*m - sum <n> in N: vabs(difference2[n])*n)
+    \end{lstlisting}
+    To the objective function.
+  \end{itemize}
+  Other trivial approaches are tried out as well, and do not merit mentioning here. 
+\end{itemize}
 
 
-
-
+\subsection{Suboptimal Attemp 2 with ZIMPL}
 
 
 
