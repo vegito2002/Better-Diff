@@ -56,17 +56,15 @@
 \begin{document}
 
 % Article top matter
-\title{\textsc{EN 600.425 Declarative Methods \\ - Term Project Writeup}\\ \textbf{\textsc{Better } \texttt{diff}}} %\LaTeX is a macro for printing the Latex logo
-\author{Guoye Zhang, Qiang Zhang\\
-        % \texttt{Hopkins ID: 92CC3E}
-        }  %\texttt formats the text to a typewriter style font
-\date{\today}  %\today is replaced with the current date
+\title{\textsc{EN 600.425 Declarative Methods \\ - Term Project Writeup}\\ \textbf{\textsc{Multi-Diff}}}
+\author{Guoye Zhang, Qiang Zhang}
+\date{\today}
 \maketitle
 
 \section{Introduction}
-The utility \texttt{diff} is commonly used in all scenarios, whether for programming purpose or in general text editing circumstances. The website Github integrated \texttt{diff} into their version control system, facilitating ubiquitous knowledge of the utility. This legacy utility is based on the renowned \textit{Edit Distance} algorithm, which in essence is a Dynamic Programming algorithm. \\
+The utility \texttt{diff} is commonly used in all scenarios, whether for programming purposes or in general text editing circumstances. Version control systems such as git integrated \texttt{diff} as a part of their core functionality. This legacy utility is based on the renowned \textit{Edit Distance} algorithm, which in essence is a Dynamic Programming algorithm. \\
 
-Aside from the application domain of version control, \texttt{diff}'s algorithm in itself is interesting and instructive enough for most computer science students to delve into. In general sense, the concepts of finding similar text and displaying minimum edit distance can be embodied in various domains and categories of applications. Our project aims at extending \texttt{diff} to provide firstly the feature of multi-file editting source referencing, accompanied with visualization, that can display the chain of editting among more than two files placed in the same folder, together with a better algorithm that fixes a certain scenario where the normal \texttt{diff}'s Edit Distance algorithm would perform suboptimally, which is a case we already described in the proposal.\\
+Aside from the application domain of version control, \texttt{diff}'s algorithm in itself is interesting and instructive enough for most computer science students to delve into. In general sense, the concepts of finding similar text and displaying minimum edit distance can be embodied in various domains and categories of applications. Our project aims at extending \texttt{diff} to provide firstly the feature of multi-file comparison, accompanied with visualization, that can display the chain of editing among more than two related files, together with a better algorithm that fixes certain scenarios where the normal \texttt{diff}'s Edit Distance algorithm would perform suboptimally, which are cases we already described in our proposal.\\
 
 \subsection{Algorithmic Optimization}
 As a reminder, recall the scenario where normal \texttt{diff} would perform suboptimally. In this code snippet:\\
@@ -105,24 +103,24 @@ Instead of what would be expecting as follows:
        System.out.println("Third line");
    }
 \end{lstlisting}
-This case is fixed with our improved version of \texttt{diff} algorithm, which we shall call by \texttt{BetterDiff} in the rest of this document. In fact, there are much more scenarios where the traditional \texttt{diff} algorithm would disappoint you. \\
+This case is fixed with our improved version of \texttt{diff} algorithm, which we shall call by \texttt{BetterDiff} in the rest of this document. \\
 
 \subsection{Multi-file Referencing}
-In this part, we extended \texttt{diff} to another domain of applicaiton of interest. To most eyes, \texttt{diff} is generally used to comparing the editting distance between two files. It is a utility used widely in use. Indeed, it is a utility, in that it does a job well, but it is not typically tailored for any domain. We implemented an application that embodies \texttt{BetterDiff} in its core, but meanwhile provides far more convenient and appleasing functionalities. \\
+In this part, we extended \texttt{diff} to another domain of application of interest. To most eyes, \texttt{diff} is generally used to comparing the editing distance between two files. It is a utility widely in use. Indeed, it does a job well, but it is not typically tailored for any domain. We implemented an application that embodies file comparison in its core, but meanwhile provides far more convenient and pleasing functionalities. \\
 
-For oft, we are interested not only to know the difference between two text files. Rather, we want to be able to look at some paragraph of this text file, and find out from which other paragraph in other file this paragraph derives. Text reusing is so common nowadays that this is a feature of no trivial productivity significance. In fact, to fullfill such a task, of finding the predecessor of a paragraph in this text file, most people would resort to nothing better than a brute-force file-by-file \textit{Open\&Search} routine. \\
+For oft, we are interested not only to know the difference between two text files. Rather, we want to be able to look at some paragraph of this text file, and find out from which other paragraph in other file this paragraph derives. Text reusing is so common nowadays that this is a feature of no trivial productivity significance. In fact, to fulfill such a task, of finding the predecessor of a paragraph in this text file, most people could only resort to nothing better than a brute-force file-by-file \textit{Open\&Search} routine. \\
 
-To implement this feature, the optimized algorithm of \texttt{BetterDiff} alone is not quite enough. In practical scale, even comparing only two files with a \texttt{diff}-based algorithm can be undesirably slow. Not to mention that we are trying to determine edit chains between multiple files. For the application to be fast enough to be useful in practice, certain techniques are used to structure the implementation of its functionality.\\
+To implement this feature, the optimized algorithm of \texttt{BetterDiff} alone is not quite enough. In practical scale, even comparing only two files with an Edit Distance based algorithm can be undesirably slow. Not to mention that we are trying to determine edit chains between multiple files. For the application to be fast enough to be useful in practice, certain techniques are used to structure the implementation of its functionality.\\
 
-The use case we are trying to address here is a scenario where the folder contains, rather than multiple files, multiple versions of a file. For example, \texttt{file1} could be the original file of an article in craft. Then after certain modifications, \texttt{file2} results. In the end, the folder contains multiple files, each pair of which, albeit being different, shares an overall similarity larger than 50\%. Aside from that, we make the below assumptions:
+The use case we are trying to address here is a scenario where we are given, rather than multiple files, multiple derivatives of one file. For example, \texttt{file1} could be the original file of an article in craft. Then after certain modifications, \texttt{file2} results. In the end, we have multiple files, each pair of which, albeit being different, shares a large similarity. Aside from that, we make the below assumptions:
 \begin{enumerate}
-  \item File name indicate each file's last-modified-by time in an increasing order. Thus if there is a file $i$ and a file $j$ with $i<j$, we can convince ourselves that file $i$ is lastly modified earlier than file $j$ and file $j$ is thus possile a successor of $i$: meaning we should include file $i$'s texts when we try to search for the predecessor of any text paragraph in file $j$. To be honest, this modelling is not perfectly accurate. For example, in the case below:\\
+  \item We have a linear ordering of files given by user-input. Thus if there is a file $i$ and a file $j$ with $i$ coming before $j$, we can convince ourselves that file $i$ is created earlier than file $j$ and file $j$ is thus a successor of $i$: meaning we should include file $i$'s texts when we try to search for the predecessor of any text paragraph in file $j$. To be honest, this modeling is not perfectly accurate. For example, in the case below:\\
   \includegraphics[scale=0.3,center]{pic1.png}
 
-  File 5 is modified later than file 4 (since 5 is larger than 4, and thus file 5 has a later last modification timestamp), but file 5 actually should not consider file 4 as one of its predecessor, because file 5 comes from modifications of file 2, and is on a editting path branch disjoint from that of file 2. 
+  File 5 is modified later than file 4 (since 5 is larger than 4, and thus file 5 has a later last modification timestamp), but file 5 actually should not consider file 4 as one of its predecessor, because file 5 comes from modifications of file 2, and is on a editing path branch disjoint from that of file 2. 
 
-  But overall, our approach should work fine. 
-  \item The author of the files knows to seperate each section, or paragraph of his files by an empty line. Like:
+  But overall, our approach should work good enough. 
+  \item The author of the files knows to separate each section, or paragraph of his files by an empty line. Like:
   \begin{lstlisting}
   <paragraph1>
 
@@ -130,37 +128,39 @@ The use case we are trying to address here is a scenario where the folder contai
 
   <paragraph3>
   \end{lstlisting}
-  This is similar to how most Latex users format their documents. 
+  This is how most English users format their documents as well as formatting languages such as LaTeX. 
 \end{enumerate}
 When we open a certain file $i$, we want to be able to know:
 \begin{enumerate}
-  \item \textbf{Objective 1}: Amongst all the paragraphs of all files in this folder, which paragraph is most likely to be the direct predecessor of this paragraph? Or, which paragraph is most likely to be the direct source of modification for this paragraph?
+  \item \textbf{Objective 1}: Amongst all the paragraphs of all files provided by our user, which paragraph is most likely to be the direct predecessor of this paragraph? Or, which paragraph is most likely to be the direct source of modification for this paragraph?
   \item \textbf{Objective 2}: After finding the most likely predecessor of this paragraph, what are the minimum amount of edits required to change from the predecessor paragraph to the paragraph under inspection?
 \end{enumerate}
 
-Objective 2 as we described in the last subsection, is addressed by an optimized version of \texttt{diff} algorithm, which we call \texttt{BetterDiff}. Objective 1's on the other hand, is key to speeding up the application to a speed suitable for real-life utilization. \\
+Objective 2 as we described in the last subsection, is addressed by an optimized version of Edit Distance algorithm, which we call \texttt{BetterDiff}. Objective 1's on the other hand, is key to speeding up the application to a speed suitable for real-life usage. \\
 
-By matching texts in the unit of paragraph first, we largely reduced the computational effort required. Yet this scheme does not violate any practical editting convention to render the application futile. Normally, when a user edits a file, the edits, however many there are at a time, can be each bucketted into its own paragraph. By matching paragraphs first, we limit the scope to apply \texttt{BetterDiff} on to only a paragraph a time.  This is analogous to an idea in 3D game designing that you don't have to render the entire 3D scene and maintain it at all time. You just have to render as large as the player's camera can capture and only when the camera does captures it. This optimization can reduce the computational cost of the application by a factor as large as several hundreds inpractice. \\
+By matching texts in the unit of paragraph first, we largely reduced the computational effort required. Yet this scheme does not violate any practical editing convention to render the application futile. Normally, when a user edits a file, the edits, however many there are at a time, can be each bucketed into its own paragraph. By matching paragraphs first, we limit the scope to apply \texttt{BetterDiff} on to only a paragraph a time.  This is analogous to an idea in 3D rendering that you don't have to calculate the effect of each object for the entire scene. You just have to render a small radius which affect viewpoint the most. This optimization can reduce the computational cost of the application by a factor as large as hundreds in practice. \\
 
-The key idea behind implementing Objective 1, and the paragraph matching explained above, is determine textual similarities. There is a well-established technique called Min-hash which is used to calculate a text document's signature, which can in turn be used to compare with another document's signature to determine the similarity between the two documents. Of course, we here are looking at the similarity between two documents rather than two paragraphs. We used a third-party library \cite{minhash} which can return the similarity of two text strings based on the Min-hash algorithm. \\
+The key idea behind implementing Objective 1, and the paragraph matching explained above, is to determine textual similarities. There is a well-established technique called MinHash which is used to calculate a string's signature, which can in turn be used to compare with another string's signature to determine the similarity between the two documents. We used a third-party library \cite{minhash} which can return the similarity of two strings based on the MinHash algorithm. \\
 
-There are more subtlties to be clarified in this scheme. But we are leaving further elaboration for later part of this document. 
+There are more subtleties to be clarified in this scheme. But we are leaving further elaboration for later part of this document. 
 
 \subsection{Running Instructions \& Presentation}
-By this point, enough information is provided to understand what this project hopes to deliver. In this section, we provide step by step instructions so that you can run the application now and see the results before going further. More elaborations follows.
+By this point, enough information is provided to understand what this project hopes to deliver. In this section, we provide step by step instructions so that you can run the application now and see the results before going further.
 
-Our program \texttt{BetterDiff} takes a list of files as its input. It works in two mode, plain text patch file mode and HTML mode (enabled with \texttt{--html} flag). It generates a \texttt{.mpatch} or \texttt{.html} file for each file in the input. We process files by the their listed order, and each file are only compared with files before it, therefore no cycle is possible.\\
+Our program \texttt{MDiff} takes a list of files as its input. It works in two mode, plain text patch file mode and HTML mode (enabled with \texttt{--html} flag). It generates a \texttt{.mpatch} or \texttt{.html} file for each file in the input. We process files by the their listed order, and each file are only compared with files before it, therefore no cycle is possible.\\
 
-For example, suppose you have \texttt{1.txt, 2.txt, 3.txt} files in the folder, with filenames indicating lastly modification time precedence. Type in command line:
+We have submitted packaged \texttt{jar} to be run directly. If you prefer to compile the source code yourself:
+\begin{lstlisting}
+mvn clean compile assembly:single
+\end{lstlisting}
+
+To use the program, suppose you have \texttt{1.txt, 2.txt, 3.txt} files in the folder, with filenames indicating order of their creation. Type in command line:
 \begin{lstlisting}
 $ java -jar BetterDiff.jar 1.txt 2.txt 3.txt
 $ java -jar BetterDiff.jar --html 1.txt 2.txt 3.txt
 \end{lstlisting}
-Compile:
-\begin{lstlisting}
-mvn clean compile assembly:single
-\end{lstlisting}
-BetterDiff file is similar to diff file as we indent the file with two spaces and put block header around unoriginal content. Character changes if applicable are annotated below a line.
+
+\texttt{Mpatch} file is similar to \texttt{diff} result as we indent the file with two spaces and put block header around unoriginal content. If applicable, character changes are annotated below its line.
 \begin{lstlisting}
 = [filename]:[line number]
   Unchanged paragraph
@@ -169,12 +169,12 @@ BetterDiff file is similar to diff file as we indent the file with two spaces an
 < [filename]:[line number]
   Old content
   ---
-> [new line number]
+> [current line number]
   New content
   +++
 ---
 \end{lstlisting}
-Recall the notion of editting chains mentioned before:\\
+Recall the notion of editing chains mentioned before:\\
 \includegraphics[scale=0.5,center]{1.pdf}\\
 
 Here, each highlighted paragraph lies on the source end of an arrow, which in itself marks a direct predecessor-successor relationship. That is, the paragraph at the end of the arrow comes directly from modifying the paragraph at the origin of the arrow.\\
@@ -182,16 +182,16 @@ Here, each highlighted paragraph lies on the source end of an arrow, which in it
 To help illustrate, here is a picture displaying how the algorithm respects brackets pairing:\\
 \includegraphics[center]{Screenshot1.png}\\
 
-HTML version is a two column viewer where current file is displayed on the right. When you select a paragraph, its origin is displayed on the left, and changes from origin are annotated with color. When you click on a paragraph on the right column, the file that contains its predecessor shows up in the left column with the predecessor-successor paragraphs aligned as closely as possible. Matching paragraphs and \texttt{BetterDiff} edits are shown in corresponding colors. \\
+HTML version is a two column viewer where current file is displayed on the right. When you select a paragraph, its origin is displayed on the left, and changes from origin are annotated with color. When you click on a paragraph on the right column, the file that contains its predecessor shows up in the left column with the predecessor-successor paragraphs aligned as closely as possible. Matching paragraphs and \texttt{MDiff} edits are shown in corresponding colors. \\
 \includegraphics[scale=0.4,center]{Screenshot.png}\\
 
 \section{First Step: Predecessor Matching}
-Definition first: \textbf{Predecessor Matching} refers to the process of finding, for each paragraph $p$ in each file $file_p$, amongst all the paragraphs that are contained in files with a lastly modification timestamp (which is assumed to be indicated by the filename number's value ordering) smaller than $file_p$. The concept of similarity is calculated by comparison of signature which is calculated by \textbf{Minhash}.
+\textbf{Predecessor Matching} refers to the process of finding, for each paragraph $p$ in each file $file_p$, amongst all the paragraphs that are contained in files coming before $file_p$. The concept of similarity is calculated by comparison of signature which is calculated by \textbf{MinHash}.
 \subsection{Modelling}
-As described in the previous section, our first goal is to be able to inspect a certain file $i$ in the folder, and immediately locate the most similar paragraph amongst all files in the folder, under assumptions:
+As described in the previous section, our first goal is to be able to inspect a certain file $i$ in a sequence, and immediately locate the most similar paragraph amongst all files, under assumptions:
 \begin{enumerate}
-  \item File name indicate each file's last-modified-by time in an increasing order.
-  \item The author of the files knows to seperate each section, or paragraph of his files by an empty line. 
+  \item Files are given in time order from oldest to newest.
+  \item The author of the files knows to separate each section, or paragraph of his files by an empty line. 
 \end{enumerate}
 
 The second assumption is established so that there is a valid way to define the notion of ancestry. If we treat an entire document as one single paragraph, then there is no point in saying \textit{finding the predecessor of this entire document}. Because in practice, most modifications between files are minor and of comparable degree, which means different successors of the same predecessor document may end up looking very much alike. Even though we devise an algorithm to locate such an predecessor document for the document being inspected, the output is most likely to be inaccurate and uninformative. \\
@@ -200,60 +200,58 @@ After dividing a document into paragraphs, the notion of ancestry and the concep
 
 Now, to find the most likely predecessor of a paragraph, is to find a paragraph that:
 \begin{enumerate}
-  \item is contained in a file that is lastly modified earlier than the file that contains the paragraph under inspection.
+  \item is contained in a file earlier than the file that contains the paragraph under inspection.
   \item shares, amongst all paragraphs that satisfies the previous condition, a highest similarity with the paragraph under inspection.
-  \item owns a similarity with the paragraph that satisfies the previous condition that is higher than a lower threshold.
+  \item owns a similarity with the paragraph that satisfies the previous condition that is higher than a 80\% threshold.
 \end{enumerate}
 And to find such a paragraph that satisfies the above three conditions, we use the theory of textual similarity. \\
 
-\subsection{Texutual Similarity and Textual Signature}
-Since this is only a subroutine we resort to in this project, rather than the project itself's primary focus, the introduction here is brief. Minhash is a hashing scheme that can hash each string or piece of text to a value that is necessarily short but informative enough to capture the uniqueness of the text. This value is called the \texttt{signagure} of this text. Minhash is designed to be able to hash similar texts to similar signatures. And by a corresponding comparison function of two texts' respective signature, the two texts' similarity can be determined.
+\subsection{Textual Similarity and Textual Signature}
+Since this is only a subroutine we resort to in this project, rather than the project itself's primary focus, the introduction here is brief. MinHash is a hashing scheme that, instead of being as random as possible, provides locality sensitivity. Its hash result is called the \texttt{signature} of this text. MinHash is designed to be able to hash similar texts to similar signatures. And by a corresponding comparison function of two texts' respective signature, the two texts' similarity can be easily determined.
 
 \subsection{Implementation}
 Back to the implementation of the application. In particular, we implement the process as follows:
 \begin{enumerate}
-  \item Read in all files in the folder in the order of increasing lastly-modification time, which is determined by the filenames. Create two string arrays, one to store the filenames of all the files in question and one to store each file's content of all files. 
-  \item For each content string of the file content array, break up the content string into an string array of storing this file's lines. By doing this, we have a 2-dimensional array of \texttt{filelines[m][n]} where \texttt{m} stands for the number of files involved, and \texttt{n} stands for each file's number of lines in its content. Incidentally, we trim out the whitespaces at the head and tail of each line. 
-  \item Using this 2-dimensional array \texttt{filelines[m][n]}, we scan all the lines of all files in the order of an intuitive 2-dimensional iterative order.
-
-  In this scanning, we break up all the lines into paragraphs by the delimiter of \textit{emptyline} as mentioned before. For each paragraph, we iterate through all paragraphs discovered before it, and find the one paragraph with the highest similarity to it, which has to be above 80\%. We determine this paragraph as the \textbf{predecessor} of current iteration's paragraph. Relevant information are all stored. 
-  \item Once we know the predecessor for each of all paragraphs of all files in the folder, we also maintain the edit distance produced by the improved \texttt{BetterDiff} algorithm with each paragraph. More specifically, this edit distance is calculated against each paragraph's predecessor with itself. By now, we have all the information we need to implement the application layer features in the future. For each paragraph, the information, in summary, typically consists of:
+  \item Read in all files in the order provided by our user. Create two string arrays, one to store the filenames of all the files in question and one to store each file's content of all files. 
+  \item For each content string of the file content array, break up the content string into a string array of storing this file's lines. By doing this, we have a 2-dimensional array of \texttt{filelines[m][n]} where \texttt{m} stands for the number of files involved, and \texttt{n} stands for each file's number of lines in its content. Then we trim out the tabs and whitespaces at the head and tail of each line. 
+  \item Using this 2-dimensional array \texttt{filelines[m][n]}, we scan all the lines of all files, and break up all the lines into paragraphs by the delimiter of \textit{emptyline} as mentioned before. For each paragraph, we iterate through all paragraphs discovered before it, and find the one paragraph with the highest similarity to it, which has to be above 80\%. We determine this paragraph as the \textbf{predecessor} of current iteration's paragraph. Relevant information are all stored.
+  \item Once we know the predecessor for each of all paragraphs of all files in the folder, we maintain the edit distance produced by the our \texttt{BetterDiff} algorithm with each paragraph. More specifically, this edit distance is calculated against each paragraph's predecessor with itself. By now, we have all the information we need to implement the application layer features in the future. For each paragraph, the information, in summary, typically consists of:
   \begin{itemize}
-    \item The filename of the file that contains this paragraph. Note that we are being a little simplistic here: we assume that each file has a filename in the format of $i.<extension>\ \forall i$. This assumption does not harm the generality of application for the project and can be easily extended if necessary.
-    \item The start and ending line numbers of this paragraph in the file that contains it. With these line numbers and the filename stored in the above entry, the paragraph itself now can be uniquely located.
-    \item A pointer to the paragraph's \textbf{predecessor}, which is determined by a concept of \textit{maximum similarity so far} as described above.
+    \item The file that contains this paragraph.
+    \item The start and ending line numbers of this paragraph in the file that contains it. With these line numbers and the file number stored in the above entry, the paragraph itself can now be uniquely located.
+    \item A reference to the paragraph's \textbf{predecessor}, which is determined by a concept of \textit{maximum similarity so far} as described above.
     \item Annotation to represent the result of running \texttt{BetterDiff} with this paragraph's predecessor as the first argument and this paragraph itself as the second argument. Note that although we are trying to accomplish something that looks like multi-file \texttt{diff}ing here, the \texttt{BetterDiff} algorithm itself only takes two strings at a time. 
 
     The annotation consists of three parts. We will illustrate each part's meaning with this example's help:
     \begin{lstlisting}
-<a><b>
+[a][b]
  -  -
 
-<b><a>
+[b][a]
  +  +
     \end{lstlisting}
     \begin{itemize}
       \item The \texttt{boolean same} value, which is \texttt{true} if the two string arguments are the same, which means the edit distance is 0. In the case of the example shown here, this flag should be \texttt{false}.
-      \item The \texttt{boolean[] delete} flag array. The explanation is left to below.
+      \item The \texttt{boolean[] delete} flag array. The explanation is left below.
       \item The \texttt{boolean[] add} flag array. Remind yourself that although we are introducing the information maintained for each paragraph, the \texttt{delete} and \texttt{add} flag arrays actually apply to this paragraph's predecessor and this paragraph itself. Since for each paragraph, its predecessor can be uniquely identified.
 
-      The \texttt{delete} boolean flag array corresponds to the predecessor string, which is \texttt{<a><b>} in this case. The flags in this array indicates whether each character in the string would be kept so that the predecessor string could be editted into the target successor string with minimum editting distance. In particular, each flag is false if the corresponding character in this paragraph's predecessor paragraph should be deleted in min-distance editting. In this case, the \texttt{delete} array should be \texttt{\{true,false,true,true,false,true\}}. Note that this information is stored with the paragraph \texttt{<b><a>}, rather than the paragraph (string) \texttt{<a><b>}.
+      The \texttt{delete} boolean flag array corresponds to the predecessor string, which is \texttt{[a][b]} in this case. The flags in this array indicates whether each character in the string would be kept so that the predecessor string could be edited into the target successor string with minimum editing distance. In particular, each flag is false if the corresponding character in this paragraph's predecessor paragraph should be deleted in min-distance editing. In this case, the \texttt{delete} array should be \texttt{\{true,false,true,true,false,true\}}. Note that this information is stored with the paragraph \texttt{[b][a]}, rather than the paragraph (string) \texttt{[a][b]}.
 
-      Similarly, \texttt{add} boolean flag array corresponds to the new, or successor string/paragraph of the pair. If \texttt{add[i]} is true, then the character at 0-based position $i$ will be be seen as an uneditted character(certainly not deleted, yet is not also added to the new paragraph) when trying to edit this paragraph's predecessor into this paragraph itself with minimum distance. If \texttt{add[i]} is false, then the character at position $i$ will be considered newly added during the min-distance editting. In this example, the \texttt{add} array, of a value \texttt{\{true,false,true,true,false,true\}}, should be maintained with the paragraph \texttt{<b><a>}.
+      Similarly, \texttt{add} boolean flag array corresponds to the new, or successor string/paragraph of the pair. If \texttt{add[i]} is true, then the character at 0-based position $i$ will be be seen as an unedited character (certainly not deleted, yet is not also added to the new paragraph) when trying to edit this paragraph's predecessor into this paragraph itself with minimum distance. If \texttt{add[i]} is false, then the character at position $i$ will be considered newly added during the min-distance editing. In this example, the \texttt{add} array, of a value \texttt{\{true,false,true,true,false,true\}}, should be maintained with the paragraph \texttt{[b][a]}.
     \end{itemize}
   \end{itemize}
 \end{enumerate}
 
 This section is intended to focus on matching each paragraph with its predecessor, which is located by the \textit{most similar paragraph so far} scheme as decribed above. In the explanation, we assumed that we already have the utility of \texttt{BetterDiff} and includes its result for each paragraph together with the result of \textbf{Predecessor Matching}. Note that with these information stored, we can easily implement any visualization we want. We did implement a HTML-based visualization, but discussion shall be omitted. \\
 
-Although this section is named the \textbf{First Step}, we essentially introduced the big picture architecture of the project. With the skeleton built out, all that left is to fill in the muscles, especially a powerful one. The \textbf{Predecessor Matching} scheme based on \textbf{Minhash} provides all the inter-paragraph information we need. To get the intra-paragraph information, we need an algorithm to compare a paragraph itself to its predecessor paragraph. And the introduction of this algorithm is developed next.
+Although this section is named the \textbf{First Step}, we essentially introduced the big picture architecture of the project. With the skeleton built out, all that left is to fill in the muscles, especially a powerful one. The \textbf{Predecessor Matching} scheme based on \textbf{MinHash} provides all the inter-paragraph information we need. To get the intra-paragraph information, we need an algorithm to compare a paragraph itself to its predecessor paragraph. And the introduction of this algorithm is developed next.
 
-\section{Better \texttt{diff}: \texttt{BetterDiff}}
+\section{\texttt{BetterDiff}}
 Our optimization of the original \texttt{diff}, or Edit Distance algorithm, focuses on fixing Edit Distance algorithm's ignorance of \textbf{brackets pairing}. Note that although we use the term \textit{brackets} here, we actually refer to parentheses, brackets, braces in general. This naming convention would apply for the rest of this document. \\
 
-In section 1 of \textit{Introduction}, we gave several examples where Edit Distance algorithm won't be able to find an optimal, or even reasonable result. In our improved algorithm of \texttt{BetterDiff}, we are able to deal with not only ignorance of brackets pairing, which in practice usually comes in the form of an editting that deleted or added only part of a paring of brackets, but also Edit Distance's ignorance of quote pairing. Special scenarios like escaping character are also considered.
+In section 1 of \textit{Introduction}, we gave an example where Edit Distance algorithm won't be able to find an optimal result. In our improved algorithm of \texttt{BetterDiff}, we are able to deal with not only ignorance of brackets pairing, which in practice usually comes in the form of an editing that deleted or added only part of a paring of brackets, but also the ignorance of quote pairing. Special scenarios like escaping character are also considered.
 
-\subsection{Failed Attemp 1 with ZIMPL}
+\subsection{Failed Attempt 1 with ZIMPL}
 This problem appears to us in the beginning as difficult to solve with Dynamic Programming which is adopted by the original Edit Distance algorithm. We decided to put what we learned in this course in practice and give ZIMPL a try. \\
 
 The files associated with this attempt are all put in the folder \textit{Deprecated} which is located at the root level:
@@ -283,11 +281,11 @@ New String:
 4,3
 5,5
 \end{lstlisting}
-The input string is stored in variables \texttt{old[M]} and the output string is stored in variables \texttt{new[N]}. For \texttt{M}, we also have the binary annotation variable \texttt{delete[M]}, and similarly \texttt{add[N]} for \texttt{N}. Note that the value of the binary variables are the opposite of the \texttt{delete} and \texttt{add} Java boolean flags mentioned above. Here, \texttt{delete[m]} is 1 iff the digit $m$ of the input string (digit array) should be deleted in a min-distance editting. Similarly, \texttt{add[n]} should be 1 iff the digit $n$ should be seen as an added digit in a min-distance editting. \\
+The input string is stored in variables \texttt{old[M]} and the output string is stored in variables \texttt{new[N]}. For \texttt{M}, we also have the binary annotation variable \texttt{delete[M]}, and similarly \texttt{add[N]} for \texttt{N}. Note that the value of the binary variables are the opposite of the \texttt{delete} and \texttt{add} Java boolean flags mentioned above. Here, \texttt{delete[m]} is 1 iff the digit $m$ of the input string (digit array) should be deleted in a min-distance editing. Similarly, \texttt{add[n]} should be 1 iff the digit $n$ should be seen as an added digit in a min-distance editing. \\
 
 With such definition, we derive another two variable definitions: \texttt{after\_delete[M]} and \texttt{before\_add[N]}.  \texttt{after\_delete[M]} is essentially \texttt{old[M]} after a mapping function being applied, which sets \texttt{after\_delete[m]} to 0 if \texttt{delete[m]} is 1 and to \texttt{old[m]} otherwise. \texttt{before\_add[N]} is defined in a similar way. It is intuitive to add a minimizing objective function, where the coefficients of \texttt{delete[M]} and \texttt{add[N]} are all positive. All that's left to now is to set up constraints. \\
 
-Note, to express that the editting determined by \texttt{delete[M]} and \texttt{add[N]} is a valid editting, which measn applying the indicated editting would correctly tranform \texttt{old[M]} to \texttt{new[N]}. Such a notion of valid editting shall be implemented with a constraint, which we might as well call \textbf{mapped equality} that could determine the following two strings equal (these two strings do conform to the example inputs listed above):
+Note, to express that the editing determined by \texttt{delete[M]} and \texttt{add[N]} is a valid editing, which means applying the indicated editing would correctly transform \texttt{old[M]} to \texttt{new[N]}. Such a notion of valid editing shall be implemented with a constraint, which we might as well call \textbf{mapped equality} that could determine the following two strings equal (these two strings do conform to the example inputs listed above):
 \begin{lstlisting}
 after_delete[M]:
 1,2,0,4,5
@@ -307,7 +305,7 @@ Even more, at this point, we realized that trying to further transforming \textt
   \item Hard constraint: sum of \texttt{after\_delete[M]}  and \texttt{before\_add[N]} should be equal. This is only a necessary constraint to express the mapped equality, but not enough to be sufficient.
   \item Hard constraint: the number of zeroes in each of \texttt{after\_delete[M]} and \texttt{before\_add[N]} is the same. Again, this is also only a necessary constraint. \\
 
-  And the below appraoches are mostly inspired by analysis of concret input cases:
+  And the below approaches are mostly inspired by analysis of concrete input cases:
   \begin{itemize}
     \item Approach 1: adding 
     \begin{lstlisting}
@@ -329,10 +327,10 @@ vabs(difference1[m]) == sum <n> in N: vabs(difference2[n])
 \end{itemize}
 
 
-\subsection{Suboptimal Attemp 2 with ZIMPL}
-Upon exploration, we realized that the difficulty of contraint expression mostly comes from the form of encoding we picked. Thus in this attempt, we changed to another approach of encoding the problem. The program associated with this attempt is stored in the \textit{Deprecated} subfolder as \texttt{zimpl\_attemp2.zpl}. \\
+\subsection{Suboptimal Attempt 2 with ZIMPL}
+Upon exploration, we realized that the difficulty of constraint expression mostly comes from the form of encoding we picked. Thus in this attempt, we changed to another approach of encoding the problem. The program associated with this attempt is stored in the \textit{Deprecated} subfolder as \texttt{zimpl\_attemp2.zpl}. \\
 
-This attempt's code is better explaned with an example (note that the explanations here are to be viewed by side of the code. Some settings in the source code are not mentioned here for brevity of expression) :
+This attempt's code is better explained with an example (note that the explanations here are to be viewed by the side of the code. Some settings in the source code are not mentioned here for brevity of expression) :
 \begin{lstlisting}
 param s1[I2] := <1>10,<2>11,<3>12,<4>10,<5>13,<6>12 default 0;
 param s2[I2] := <1>10,<2>11,<3>12,<4>10,<5>14,<6>12,<7>10,<8>13,<9>12 default 0;
@@ -342,21 +340,21 @@ These two sets of parameters refer to the input arrays. Thus, what we have as in
 input1: 10, 11, 12, 10, 13, 12
 input2: 10, 11, 12, 10, 14, 12, 10, 13, 12
 \end{lstlisting}
-The length parameter here is \texttt{l=max\(6,9\)=9}, and correspondingly:
+The length parameter here is \texttt{l=max(6,9)=9}, and correspondingly:
 \begin{lstlisting}
 set I := {1..9}
 set I2 := {1..18}
 \end{lstlisting}
-Why do we have \texttt{I2}? Because now instead of tranforming each deleted or added digit to 0 explicitly, we implicitly express the edit as a digit not being choosen. Thus to express \texttt{1,2,3,4,5} with 3 deleted in the min-distance editting, we simply express \textit{we only choose digits at indices of \texttt{1,2,4,5,6}}. Note that the 6 here is an out-of-bound, which is 0 by padding. And the existence of \texttt{I2} is exactly for this purpose. As long as we decides to delete some digit in the original legit index bound \texttt{I}, we express it as omitting the deleted digit's index, and adding alternatively another out-of-bound index in the padding region filled with 0s. Remind yourself that, adding in the second argument string can be viewed the same way as deleting a digit in the first argument string. This is illustrated before when we introduced the Java boolean flag arrays \texttt{delte} and \texttt{add}.\\
+Why do we have \texttt{I2}? Because now instead of transforming each deleted or added digit to 0 explicitly, we implicitly express the edit as a digit not being chosen. Thus to express \texttt{1,2,3,4,5} with 3 deleted in the min-distance editing, we simply express \textit{we only choose digits at indices of \texttt{1,2,4,5,6}}. Note that the 6 here is an out-of-bound, which is 0 by padding. And the existence of \texttt{I2} is exactly for this purpose. As long as we decides to delete some digit in the original legit index bound \texttt{I}, we express it as omitting the deleted digit's index, and adding alternatively another out-of-bound index in the padding region filled with 0s. Remind yourself that, adding in the second argument string can be viewed the same way as deleting a digit in the first argument string. This is illustrated before when we introduced the Java boolean flag arrays \texttt{delete} and \texttt{add}.\\
 
-We first have variables \texttt{in1[I]} and \texttt{in2[I]}. Taking \texttt{in1[I]} as an example. \texttt{in1[1]} referes to the fact that the digit 1 is not affected (deleted) in the min-distance editting. All other \texttt{in1} and \texttt{in2} variables are defined similarly. Back to our example, we should have:
+We first have variables \texttt{in1[I]} and \texttt{in2[I]}. Taking \texttt{in1[I]} as an example. \texttt{in1[1]} refers to the fact that the digit 1 is not affected (deleted) in the min-distance editing. All other \texttt{in1} and \texttt{in2} variables are defined similarly. Back to our example, we should have:
 \begin{lstlisting}
 input1: 10, 11, 12, 10, 13, 12
 in1:     1,  2,  3,  4,  5,  6
 input2: 10, 11, 12, 10, 14, 12, 10, 13, 12
 in2:     1,  2,  3,  7,  8,  9, 10, 11, 12 
 \end{lstlisting}
-The digits at indices 4, 5 and 6 are deleted in the optimal solution, so \texttt{in2[4],in2[5],in2[6]} points to consecutive positions after the 3 deleted digits (technically they are "added" digits in the second argument string, but again, adding in the second argument can also be viewd the same way as deletion in the first argument string). \\
+The digits at indices 4, 5 and 6 are deleted in the optimal solution, so \texttt{in2[4],in2[5],in2[6]} points to consecutive positions after the 3 deleted digits (technically they are "added" digits in the second argument string, but again, adding in the second argument can also be viewed the same way as deletion in the first argument string). \\
 
 With this sorted out, other variables are either somewhat repetitive or self-explanatory. \texttt{c1[I]} and \texttt{c2[I]} refers to the picked digits as instructed by \texttt{in1} and \texttt{in2}:
 \begin{lstlisting}
@@ -369,7 +367,7 @@ c2:     10, 11, 12, 10, 13, 12,  0,  0,  0
 \end{lstlisting}
 Note that the last three zeros of \texttt{c2} come from the out-of-bound padding area after \texttt{input2}. \\
 
-The explanations for constraints and objective functions are thus omitted for brevity. In essence, the trick this attempt adopts is using index to filter out digits that would otherwise be 0s that come from editting transformations. The zero digits in attempt 1 is hard to deal with because they can appear at arbitray positions with arbitray consecutive lengths. The trick here, using auxiliary index variables and padding, implicitly picked out all the digits, which would be non-zero in attempt1, together in a consecutive manner. \\
+The explanations for constraints and objective functions are thus omitted for brevity. In essence, the trick this attempt adopts is using index to filter out digits that would otherwise be 0s that come from editing transformations. The zero digits in attempt 1 is hard to deal with because they can appear at arbitrary positions with arbitrary consecutive lengths. The trick here, using auxiliary index variables and padding, implicitly picked out all the digits, which would be non-zero in attempt1, together in a consecutive manner. \\
 
 Despite being educative in nature, this program does not perform good enough in practice. Two input strings of maximum length 9 resolved into 3332 variables and 4718 constraints and turns out to be requiring 3 seconds to solve already (with adequate hardware and latest version of solver). Imaging dealing with paragraphs across lines. \\
 
@@ -378,79 +376,79 @@ To this point, we are pretty much sure about the unlikeliness of solving the pro
 \subsection{Suboptimal Attempt 3 with Backward-Chaining Dynamic Programming}
 We started by analyzing where the ordinary Edit Distance algorithm started to went astray. Consider this example:
 \begin{lstlisting}
-<a><b><c>
+[a][b][c]
   ---
-<a><c>
+[a][c]
 \end{lstlisting}
 If running in a Backward-Chaining, or top-down manner, the Edit Distance algorithm will produce a result as shown above. The desired result instead is:
 \begin{lstlisting}
-<a><b><c>
+[a][b][c]
    ---
-<a><c>
+[a][c]
 \end{lstlisting}
-The reason for the ED algorithm's malfunction is because the tail of \texttt{><c>} are treated as identical in both strings, and thus the algorithm only starts considering editting when it comes from the tail of string 1 to the index 5 (0-based) of string 1.\\
+The reason for the ED algorithm's malfunction is because the tail of \texttt{][c]} are identical in both strings, and thus the algorithm only starts considering editing when it comes from the tail of string 1 to the index 5 (0-based) of string 1.\\
 
-A quick fix immediately comes to mind: we can force the algorithm to consider dropping \texttt{string1.charAt(6)}, which is a \texttt{>}. At this position, the solver faces a subproblem with both input strings' tail being \texttt{>}, which is a closing bracket. We add one case handling block to the algorithm so that the when the algorithm seems two input strings with same ending, which is a closing bracket, the algorithm will try first dropping the two tails altogether at first, and then try dropping only the longest string's tail. And the algorithm compare the two probing's return values. If the latter probing's return value, which results from dropping only the tail of the longer input string, is smaller or equal(which is the case in this example shown above), we choose the latter probing's strategy instead of dropping both tails. \\
+A quick fix immediately comes to mind: we can force the algorithm to consider dropping \texttt{string1.charAt(6)}, which is a \texttt{]}. At this position, the solver faces a subproblem with both input strings' tail being \texttt{]}, which is a closing bracket. We add one case handling block to the algorithm so that the when the algorithm seems two input strings with same ending, which is a closing bracket, the algorithm will try first dropping the two tails altogether at first, and then try dropping only the longest string's tail. And the algorithm compare the two probing's return values. If the latter probing's return value, which results from dropping only the tail of the longer input string, is smaller or equal(which is the case in this example shown above), we choose the latter probing's strategy instead of dropping both tails. \\
 
 This is the major modification added to ED algorithm in this attempt, and the program does produce desirable results for quite a lot of test cases, include the original three for-loop cases mentioned in the Introduction section, which terminates in less than 1 second. Note that memoization is implemented in all discussions here and below. \\
 
-But we eventually decided that optimization is not enough. Plus, it is unlikely to be able to address the paring of quotes with this simple optimization.
+But we eventually decided that this trick is too magical to work generally. Plus, it is unlikely to be able to address the paring of quotes with this simple optimization.
 
 \subsection{Final Attempt 4 with Forward-Chaining Dynamic Programming}
-First, we do a 1-pass iteration of each input string. We store the position of each openning of closing brackets. More specifically, we store each pair of brackets in the form of \texttt{closingIndex -> openingIndex}. We consider the substring between \texttt{openingIndex} and \texttt{closingIndex} to a block enclosed by this pair. \\
+First, we do a 1-pass iteration of each input string. We store the position of each opening of closing brackets. More specifically, we store each pair of brackets in the form of \texttt{closingIndex -> openingIndex}. We consider the substring between \texttt{openingIndex} and \texttt{closingIndex} to a block enclosed by this pair. \\
 
 Note that there is a subtlety here. Consider this code snippet:
 \begin{lstlisting}
-<context1>
+// context1
 for (header) {
-  body
+    // body
 }
-<context2
+// context2
 \end{lstlisting}
-In this situation, we have to move the \texttt{openingIndex} of the openning curly brace to the head of its line. This is because we have to always associate each for-loop's header with its body which is a block enclosed by a pair of curly braces. And our later algorithm depends on the ability to process each pair-enclosed block as a whole. By moving the opening curly brace's index ahead, we practically included the header inside the block. This prevents the algorithms breaking the atomicity of the header together with the block when processing.\\
+In this situation, we have to move the \texttt{openingIndex} of the opening curly brace to the head of its line. This is because we have to always associate each for-loop's header with its body which is a block enclosed by a pair of curly braces. And our later algorithm depends on the ability to process each pair-enclosed block as a whole. By moving the opening curly brace's index ahead, we practically included the header inside the block. This prevents the algorithms breaking the atomicity of the header together with the block when processing.\\
 
-Blocks enclosed by quotes are determined in a more subtle way, and the disussions are omitted here. \\
+Blocks enclosed by quotes are determined in a more subtle way, and the discussions are omitted here. \\
 
-For the rest of discussion to make sense, consider this memoization table for the two input strings of \texttt{[a][c]} and \texttt{[a][b][c]}, respectively denoted as string 1 ad string 2:\\
-\includegraphics[scale=0.6,center]{2.pdf}\\
+For the rest of discussion to make sense, consider this memoization table for the two input strings of \texttt{[a][c]} and \texttt{[a][b][c]}, respectively denoted as string 1 and string 2:\\
+\includegraphics[scale=0.5,center]{2.pdf}\\
 
 Note what we want to achieve here: in the middle region of this table, we have three paths. Using Forward-Chaining or Backward-Chaining, we would end up choosing either the path on the top or the path in the bottom. But what we really want here, is the path in the middle, which respects the pairing of the brackets. \\
 
-We maintain, aside from a table \texttt{f[][]} as above, which shows the edit distance associated with each subproblem (indexed by the lenghs of the two input argument strings), two other tables:
+We maintain, aside from a table \texttt{f[][]} as above, which shows the edit distance associated with each subproblem (indexed by the lengths of the two input argument strings), two other tables:
 \begin{lstlisting}
 private enum Direction { DIAGONAL, UP, LEFT }
 ...
 Direction[][] prev = new Direction[s1.length + 1][s2.length + 1];
 boolean[][] good = new boolean[s1.length + 1][s2.length + 1];
 \end{lstlisting}
-The first table \texttt{prev}, at each entry \texttt{prev[i][j]} stores how the \texttt{f[i][j]} edit distance is achieved. In particular, there are three ways of reaching at \texttt{[i][j]}:
+The first table \texttt{prev}, at each entry \texttt{prev[i][j]} stores how the \texttt{f[i][j]} edit distance is achieved. In particular, there are three ways of reaching \texttt{[i][j]}:
 \begin{itemize}
-  \item Moving down from its upstairs neighbor. In the table, if we choose to set \texttt{prev[4][5]} to \texttt{UP}, that would indicate that the algorithm should choose the result for the subproblem \texttt{[a][, [a][b} by deleting the character at index 4 of string 1. This is not possible in this case, but you should convince yourself about what each entry in \texttt{prev} means. In general, when an entry \texttt{prev[i][j]} is \texttt{DIAGONAL}, it means the tails of both input strings should be kept during editting. If it is either of the other two, which corrresponds to horizontal or vertial moves, that means the algorithm has to delete (or add) one of the tails of the two strings.
+  \item Moving down from its upstairs neighbor. In the table, if we choose to set \texttt{prev[4][5]} to \texttt{UP}, that would indicate that the algorithm should choose the result for the subproblem \texttt{[a][, [a][b} by deleting the character at index 4 of string 1. This is not possible in this case, but you should convince yourself about what each entry in \texttt{prev} means. In general, when an entry \texttt{prev[i][j]} is \texttt{DIAGONAL}, it means the tails of both input strings should be kept during editing. If it is either of the other two, which corresponds to horizontal or vertical moves, that means the algorithm has to delete (or add) one of the tails of the two strings.
   \item Moving right from its left neighbor. The analysis above applies similarly here. 
-  \item Moving from the immediate topleft entry, which is \texttt{[i][j]}'s immediate previous diagonal neighbor. This means neither of the two strings' tails should be editted. 
+  \item Moving from the immediate top-left entry, which is \texttt{[i][j]}'s immediate previous diagonal neighbor. This means neither of the two strings' tails should be edited. 
 \end{itemize}
 The table \texttt{f[][]} and \texttt{prev[][]} all refers to decisions that a traditional Edit Distance algorithm would make. The third table \texttt{good[][]} on the other hand, means that it is possible to reach this entry without breaking any blocks as defined by enclosing pairings. Please refer to earlier parts of this section about how blocks are generated.\\
 
 We won't bother you with a detailed step-by-step analysis of the algorithm, and will instead focus on being to the point here. The \textbf{loop invariant} here is:\\
 
-At each entry \texttt{good[i][j]} is \texttt{true} iff there is a way of reaching this entry, with its immediate predecessor on the path being among \texttt{[i][j]}'s three immediate neighbors, without breaking any blocks, or pairs of brackets.\\
+At each entry \texttt{good[i][j]} is \texttt{true} iff on our way to reach this entry, we did so without breaking any pairs of brackets or quotes.\\
 
 There are certain points that we should address here:
 \begin{itemize}
-  \item What does it mean to break a block? that means for the subproblem corresponding to \texttt{[i][j]}, this entry's solution's corresponding editting can't be done without, for a certain pair of brackets, dropping one half in one input string's editting, while keeping both halves in another input string's output editting. That is to say, we require that for each pair of brackets, the two halves of the pair must either be both dropped in a subsolution, or be both preserved in a subsolution. Such an observation helps achieve what we set out to implement in the first place: fixing ignorance of brackets pairing.
+  \item What does it mean to break a block? that means for the subproblem corresponding to \texttt{[i][j]}, this entry's solution's corresponding editing was not done without, for a certain pair of brackets, dropping one half in one input string's editing, while keeping both halves in another input string's output editing. That is to say, we require that for each pair of brackets, the two halves of the pair must either be both dropped in a sub-solution, or be both preserved in a sub-solution. Such an observation helps achieve what we set out to implement in the first place: fixing ignorance of brackets pairing.
   \item This invariant does not address the table \texttt{f[][]} and the table \texttt{prev[][]}. Again, these two tables store solutions that comes from dynamic decisions made in the same way as any bottom-up Dynamic Programming algorithm. 
 \end{itemize}
-With these revalations, it should be possible to relate to the code now. The major function is the \texttt{processCharacter} method in the \texttt{Distance.java} file. We provide a brief summary of how this function proceeds. Note that this function takes two strings and returns two \texttt{boolean[]} as annotation flag for each string. For each entry \texttt{[i][j]}, calculate the edit distance from each of the \texttt{UP}, \texttt{DOWN} and \texttt{DIAGONAL} directions, and:
+With these revelations, it should be possible to relate to the code now. The major function is the \texttt{processCharacter} method in the \texttt{Distance.java} file. We provide a brief summary of how this function proceeds. Note that this function takes two strings and returns two \texttt{boolean[]} as annotation flag for each string. For each entry \texttt{[i][j]}, calculate the edit distance from each of the \texttt{UP}, \texttt{DOWN} and \texttt{DIAGONAL} directions, and:
 \begin{itemize}
-  \item if any of the three estimates is a strict minimum of the three, we determine this entry \texttt{[i][j]} comes from corresponding editting from that estimates direction.
-  \item If at least two of the three estimates are equal, that is no strict minimum exists, we pick amongst the three immediate neighbor of the three \texttt{UP}, \texttt{DOWN} and \texttt{DIAGONAL} directions one that provides an estimate no strictly larger than any other estimate and also is \texttt{good}. We set this entry \texttt{[i][j]}'s values for three tables according to editting from that neighbor. 
+  \item if any of the three estimates is a strict minimum of the three, we determine this entry \texttt{[i][j]} comes from corresponding editing from that estimates direction.
+  \item If at least two of the three estimates are equal, that is no strict minimum exists, we pick amongst the three immediate neighbor of the three \texttt{UP}, \texttt{DOWN} and \texttt{DIAGONAL} directions one that provides an estimate no strictly larger than any other estimate and also is \texttt{good}. We set this entry \texttt{[i][j]}'s values for three tables according to editing from that neighbor. 
   \item If none of the three immediate neighbors is \texttt{good}, pick the \texttt{LEFT} one. 
 \end{itemize}
 
 In practice, the algorithm works well enough for the application to render the results we expected at inception of the project. 
 
 \section{Conclusion}
-Although we did not end up implementing the project using one of the declarative languages taught in the course, we did benefit enough from the algorithmic thinking cultured by courtesy of declarative reasoning. This project so far is not perfect, and we unequivocally believe that there are input cases that could break our application and algorithm. But for this moment, we think we have made solid progress on improving a legacy algorithm. 
+Although we did not end up implementing the project using one of the declarative languages taught in the course, we did benefit enough from the algorithmic thinking cultured by courtesy of declarative reasoning. We also invented a little declarative language \texttt{mpatch} to describe file origin. This project so far is not perfect, and we unequivocally believe that there are input cases that could break our application and algorithm. But for this moment, we think we have made solid progress on improving a legacy algorithm. 
 
 
 
@@ -462,7 +460,7 @@ Although we did not end up implementing the project using one of the declarative
 %unique.  You don't need to put each element on a new line, but I did
 %simply for readability.
     \bibitem{minhash}
-      \href{https://github.com/codelibs/minhash}{codelibs/minhash: A third-party Java-based libary  for b-bit MinHash algorithm}
+      \href{https://github.com/codelibs/minhash}{codelibs/minhash: A third-party Java-based library  for b-bit MinHash algorithm}
 
 
 \end{thebibliography} %Must end the environment
