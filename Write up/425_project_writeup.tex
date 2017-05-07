@@ -126,16 +126,16 @@ which is the answer that \texttt{MDiff} would return.
 \subsection{Multi-file Referencing}
 In this part, we extended \texttt{diff} to another domain of applicaiton of interest. To most eyes, \texttt{diff} is generally used to comparing the editting distance between two files. It is a utility used widely in use. Indeed, it is a utility, in that it does a job well, but it is not typically tailored for any domain. We implemented an application that embodies \texttt{MDiff} in its core, but meanwhile provides far more convenient and appleasing functionalities. \\
 
-For oft, we are interested not only to know the difference between two text files. Rather, we want to be able to look at some paragraph of this text file, and find out from which other paragraph in other file this paragraph derives. Text reusing is so common nowadays that this is a feature of no trivial productivity significance. In fact, to fullfill such a task, of finding the ancestor of a paragraph in this text file, most people would resort to nothing better than a brute-force file-by-file \textit{Open\&Search} routine. \\
+For oft, we are interested not only to know the difference between two text files. Rather, we want to be able to look at some paragraph of this text file, and find out from which other paragraph in other file this paragraph derives. Text reusing is so common nowadays that this is a feature of no trivial productivity significance. In fact, to fullfill such a task, of finding the predecessor of a paragraph in this text file, most people would resort to nothing better than a brute-force file-by-file \textit{Open\&Search} routine. \\
 
 To implement this feature, the optimized algorithm of \texttt{MDiff} alone is not quite enough. In practical scale, even comparing only two files with a \texttt{diff}-based algorithm can be undesirably slow. Not to mention that we are trying to determine edit chains between multiple files. For the application to be fast enough to be useful in practice, certain techniques are used to structure the implementation of its functionality.\\
 
 The use case we are trying to address here is a scenario where the folder contains, rather than multiple files, multiple versions of a file. For example, \texttt{file1} could be the original file of an article in craft. Then after certain modifications, \texttt{file2} results. In the end, the folder contains multiple files, each pair of which, albeit being different, shares an overall similarity larger than 50\%. Aside from that, we make the below assumptions:
 \begin{enumerate}
-  \item File name indicate each file's last-modified-by time in an increasing order. Thus if there is a file $i$ and a file $j$ with $i<j$, we can convince ourselves that file $i$ is lastly modified earlier than file $j$ and file $j$ is thus possile a successor of $i$: meaning we should include file $i$'s texts when we try to search for the ancestor of any text paragraph in file $j$. To be honest, this modelling is not perfectly accurate. For example, in the case below:\\
+  \item File name indicate each file's last-modified-by time in an increasing order. Thus if there is a file $i$ and a file $j$ with $i<j$, we can convince ourselves that file $i$ is lastly modified earlier than file $j$ and file $j$ is thus possile a successor of $i$: meaning we should include file $i$'s texts when we try to search for the predecessor of any text paragraph in file $j$. To be honest, this modelling is not perfectly accurate. For example, in the case below:\\
   \includegraphics[scale=0.3,center]{pic1.png}
 
-  File 5 is modified later than file 4 (since 5 is larger than 4, and thus file 5 has a later last modification timestamp), but file 5 actually should not consider file 4 as one of its ancestor, because file 5 comes from modifications of file 2, and is on a editting path branch disjoint from that of file 2. 
+  File 5 is modified later than file 4 (since 5 is larger than 4, and thus file 5 has a later last modification timestamp), but file 5 actually should not consider file 4 as one of its predecessor, because file 5 comes from modifications of file 2, and is on a editting path branch disjoint from that of file 2. 
 
   But overall, our approach should work fine. 
   \item The author of the files knows to seperate each section, or paragraph of his files by an empty line. Like:
@@ -166,25 +166,67 @@ There are more subtlties to be clarified in this scheme. But we are leaving furt
 By this point, enough information is provided to understand what this project hopes to deliver. In this section, we provide step by step instructions so that you can run the application now and see the results before going further. 
 
 \section{First Step: Finding the Most Similar Paragraph}
+\subsection{Modelling}
 As described in the previous section, our first goal is to be able to inspect a certain file $i$ in the folder, and immediately locate the most similar paragraph amongst all files in the folder, under assumptions:
 \begin{enumerate}
   \item File name indicate each file's last-modified-by time in an increasing order.
   \item The author of the files knows to seperate each section, or paragraph of his files by an empty line. 
 \end{enumerate}
 
-The second assumption is established so that there is a valid way to define the notion of ancestry. If we treat an entire document as one single paragraph, then there is no point in saying \textit{finding the ancestor of this entire document}. Because in practice, most modifications between files are minor and of comparable degree, which means different successors of the same predecessor document may end up looking very much alike. Even though we devise an algorithm to locate such an ancestor document for the document being inspected, the output is most likely to be inaccurate and uninformative. \\
+The second assumption is established so that there is a valid way to define the notion of ancestry. If we treat an entire document as one single paragraph, then there is no point in saying \textit{finding the predecessor of this entire document}. Because in practice, most modifications between files are minor and of comparable degree, which means different successors of the same predecessor document may end up looking very much alike. Even though we devise an algorithm to locate such an predecessor document for the document being inspected, the output is most likely to be inaccurate and uninformative. \\
 
 After dividing a document into paragraphs, the notion of ancestry and the concept of reusing now makes sense. Think it this way: when you write code, if you say \textit{reuse}, you usually refers to reusing a part of a code file, usually a function, or block. But in the case you want to reuse the code file in its entirety, you just \texttt{import} or \texttt{include} it. Such file-wise reusing operations would normally indicate the source of reusing directly and an dedicated algorithm to solve the ancestry relationship would be unnecessary. The same analysis applies to the case of general text files. We are only interested in finding the predecessor of a snippet of a text file, which is a reused part. We conveniently define such a concept of reused part as a paragraph. There can be other choices of delimitation of reused parts, but obsession over this definition is moot per se. \\
 
-Now, to find the most likely ancestor of a paragraph, is to find a paragraph that:
+Now, to find the most likely predecessor of a paragraph, is to find a paragraph that:
 \begin{enumerate}
   \item is contained in a file that is lastly modified earlier than the file that contains the paragraph under inspection.
   \item shares, amongst all paragraphs that satisfies the previous condition, a highest similarity with the paragraph under inspection.
   \item owns a similarity with the paragraph that satisfies the previous condition that is higher than a lower threshold.
 \end{enumerate}
-And to find such a paragraph that satisfies the above three conditions, we use the theory of textual similarity. In particular, we implement the process as follow:
+And to find such a paragraph that satisfies the above three conditions, we use the theory of textual similarity. \\
+
+\subsection{Texutual Similarity and Textual Similarity}
+Since this is only a subroutine we resort to in this project, rather than the project itself's primary focus, the introduction here is brief. Minhash is a hashing scheme that can hash each string or piece of text to a value that is necessarily short but informative enough to capture the uniqueness of the text. This value is called the \texttt{signagure} of this text. Minhash is designed to be able to hash similar texts to similar signatures. And by a corresponding comparison function of two texts' respective signature, the two texts' similarity can be determined.
+
+\subsection{Implementation}
+Back to the implementation of the application. In particular, we implement the process as follows:
 \begin{enumerate}
-  \item
+  \item Read in all files in the folder in the order of increasing lastly-modification time, which is determined by the filenames. Create two string arrays, one to store the filenames of all the files in question and one to store each file's content of all files. 
+  \item For each content string of the file content array, break up the content string into an string array of storing this file's lines. By doing this, we have a 2-dimensional array of \texttt{filelines[m][n]} where \texttt{m} stands for the number of files involved, and \texttt{n} stands for each file's number of lines in its content. Incidentally, we trim out the whitespaces at the head and tail of each line. 
+  \item Using this 2-dimensional array \texttt{filelines[m][n]}, we scan all the lines of all files in the order of an intuitive 2-dimensional iterative order: 
+  \begin{lstlisting}
+  for (int i = 1 .. m) {
+    for (int j = 1 .. n) {
+      <process>
+    }
+  }
+  \end{lstlisting}
+  In this scanning, we break up all the lines into paragraphs by the delimiter of \textit{emptyline} as mentioned before. For each paragraph, we iterate through all paragraphs discovered before it, and find the one paragraph with the highest similarity to it, which has to be above 80\%. We determine this paragraph as the \textbf{predecessor} of current iteration's paragraph. Relevant information are all stored. 
+  \item Once we know the predecessor for each of all paragraphs of all files in the folder, we also maintain the edit distance produced by the improved \texttt{MDiff} algorithm with each paragraph. More specifically, this edit distance is calculated against each paragraph's predecessor with itself. By now, we have all the information we need to implement the application layer features in the future. For each paragraph, the information, in summary, typically consists of:
+  \begin{itemize}
+    \item The filename of the file that contains this paragraph. Note that we are being a little simplistic here: we assume that each file has a filename in the format of $i.<extension>\ \forall i$. This assumption does not harm the generality of application for the project and can be easily extended if necessary.
+    \item The start and ending line numbers of this paragraph in the file that contains it. With these line numbers and the filename stored in the above entry, the paragraph itself now can be uniquely located.
+    \item A pointer to the paragraph's \textbf{predecessor}, which is determined by a concept of \textit{maximum similarity so far} as described above.
+    \item Annotation to represent the result of running \texttt{MDiff} with this paragraph's predecessor as the first argument and this paragraph itself as the second argument. Note that although we are trying to accomplish something that looks like multi-file \texttt{diff}ing here, the \texttt{MDiff} algorithm itself only takes two strings at a time. 
+
+    The annotation consists of three parts. We will illustrate each part's meaning with this example's help:
+    \begin{lstlisting}
+<a><b>
+ -  -
+
+<b><a>
+ +  +
+    \end{lstlisting}
+    \begin{itemize}
+      \item The \texttt{boolean same} value, which is \texttt{true} if the two string arguments are the same, which means the edit distance is 0. In the case of the example shown here, this flag should be \texttt{false}.
+      \item The \texttt{boolean[] delete} flag array. The explanation is left to below.
+      \item The \texttt{boolean[] add} flag array. Remind yourself that although we are introducing the information maintained for each paragraph, the \texttt{delete} and \texttt{add} flag arrays actually apply to this paragraph's predecessor and this paragraph itself. Since for each paragraph, its predecessor can be uniquely identified.
+
+      The \texttt{delete} boolean flag array corresponds to the predecessor string, which is \texttt{<a><b>} in this case. The flags in this array indicates whether each character in the string would be kept so that the predecessor string could be editted into the target successor string with minimum editting distance. In particular, each flag is false if the corresponding character in this paragraph's predecessor paragraph should be deleted in min-distance editting. In this case, the \texttt{delete} array should be \texttt{\{true,false,true,true,false,true\}}. Note that this information is stored with the paragraph \texttt{<b><a>}, rather than the paragraph (string) \texttt{<a><b>}.
+
+      Similarly, \texttt{add} boolean flag array corresponds to the new, or successor string/paragraph of the pair. If \texttt{add[i]} is true, then the character at 0-based position $i$ will be be seen as an uneditted character(certainly not deleted, yet is not also added to the new paragraph) when trying to edit this paragraph's predecessor into this paragraph itself with minimum distance. If \texttt{add[i]} is false, then the character at position $i$ will be considered newly added during the min-distance editting. In this example, the \texttt{add} array, of a value \texttt{\{true,false,true,true,false,true\}}, should be maintained with the paragraph \texttt{<b><a>}.
+    \end{itemize}
+  \end{itemize}
 \end{enumerate}
 
 
