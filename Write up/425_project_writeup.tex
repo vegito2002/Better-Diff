@@ -300,7 +300,7 @@ Even more, at this point, we realized that trying to further transforming \textt
     - vabs(sum <m> in M: after_delete[m] * m - sum <n> in N: before_add[n] * n) / 2
     \end{lstlisting}
      to the objective function. However we tune the weight of this term, the solver would always be too eager to increase the number of deletions and additions to maximize its gain on this term.
-    \item Approach 2: derive \texttt{difference1[M]} for \texttt{after_delete[M]} with \texttt{difference1[m]} standing for \texttt{after_delete[m-1]} minus \texttt{after_delete[m]}. \texttt{difference2[N]} is defined similarly based on \texttt{before_add[N]}. Then we require that:
+    \item Approach 2: derive \texttt{difference1[M]} for \texttt{after\_delete[M]} with \texttt{difference1[m]} standing for \texttt{after\_delete[m-1]} minus \texttt{after\_delete[m]}. \texttt{difference2[N]} is defined similarly based on \texttt{before\_add[N]}. Then we require that:
     \begin{lstlisting}
 vabs(difference1[m]) == sum <n> in N: vabs(difference2[n])
     \end{lstlisting}
@@ -316,10 +316,52 @@ vabs(difference1[m]) == sum <n> in N: vabs(difference2[n])
 
 
 \subsection{Suboptimal Attemp 2 with ZIMPL}
+Upon exploration, we realized that the difficulty of contraint expression mostly comes from the form of encoding we picked. Thus in this attempt, we changed to another approach of encoding the problem. The program associated with this attempt is stored in the \textit{Deprecated} subfolder as \texttt{zimpl\_attemp2.zpl}. \\
 
+This attempt's code is better explaned with an example (note that the explanations here are to be viewed by side of the code. Some settings in the source code are not mentioned here for brevity of expression) :
+\begin{lstlisting}
+param s1[I2] := <1>10,<2>11,<3>12,<4>10,<5>13,<6>12 default 0;
+param s2[I2] := <1>10,<2>11,<3>12,<4>10,<5>14,<6>12,<7>10,<8>13,<9>12 default 0;
+\end{lstlisting}
+These two sets of parameters refer to the input arrays. Thus, what we have as inputs here are:
+\begin{lstlisting}
+input1: 10, 11, 12, 10, 13, 12
+input2: 10, 11, 12, 10, 14, 12, 10, 13, 12
+\end{lstlisting}
+The length parameter here is \texttt{l=max\(6,9\)=9}, and correspondingly:
+\begin{lstlisting}
+set I := {1..9}
+set I2 := {1..18}
+\end{lstlisting}
+Why do we have \texttt{I2}? Because now instead of tranforming each deleted or added digit to 0 explicitly, we implicitly express the edit as a digit not being choosen. Thus to express \texttt{1,2,3,4,5} with 3 deleted in the min-distance editting, we simply express \textit{we only choose digits at indices of \texttt{1,2,4,5,6}}. Note that the 6 here is an out-of-bound, which is 0 by padding. And the existence of \texttt{I2} is exactly for this purpose. As long as we decides to delete some digit in the original legit index bound \texttt{I}, we express it as omitting the deleted digit's index, and adding alternatively another out-of-bound index in the padding region filled with 0s. Remind yourself that, adding in the second argument string can be viewed the same way as deleting a digit in the first argument string. This is illustrated before when we introduced the Java boolean flag arrays \texttt{delte} and \texttt{add}.\\
 
+We first have variables \texttt{in1[I]} and \texttt{in2[I]}. Taking \texttt{in1[I]} as an example. \texttt{in1[1]} referes to the fact that the digit 1 is not affected (deleted) in the min-distance editting. All other \texttt{in1} and \texttt{in2} variables are defined similarly. Back to our example, we should have:
+\begin{lstlisting}
+input1: 10, 11, 12, 10, 13, 12
+in1:     1,  2,  3,  4,  5,  6
+input2: 10, 11, 12, 10, 14, 12, 10, 13, 12
+in2:     1,  2,  3,  7,  8,  9, 10, 11, 12 
+\end{lstlisting}
+The digits at indices 4, 5 and 6 are deleted in the optimal solution, so \texttt{in2[4],in2[5],in2[6]} points to consecutive positions after the 3 deleted digits (technically they are "added" digits in the second argument string, but again, adding in the second argument can also be viewd the same way as deletion in the first argument string). \\
 
+With this sorted out, other variables are either somewhat repetitive or self-explanatory. \texttt{c1[I]} and \texttt{c2[I]} refers to the picked digits as instructed by \texttt{in1} and \texttt{in2}:
+\begin{lstlisting}
+input1: 10, 11, 12, 10, 13, 12
+in1:     1,  2,  3,  4,  5,  6
+c1:     10, 11, 12, 10, 13, 12
+input2: 10, 11, 12, 10, 14, 12, 10, 13, 12
+in2:     1,  2,  3,  7,  8,  9, 10, 11, 12 
+c2:     10, 11, 12, 10, 13, 12,  0,  0,  0
+\end{lstlisting}
+Note that the last three zeros of \texttt{c2} come from the out-of-bound padding area after \texttt{input2}. \\
 
+The explanations for constraints and objective functions are thus omitted for brevity. In essence, the trick this attempt adopts is using index to filter out digits that would otherwise be 0s that come from editting transformations. The zero digits in attempt 1 is hard to deal with because they can appear at arbitray positions with arbitray consecutive lengths. The trick here, using auxiliary index variables and padding, implicitly picked out all the digits, which would be non-zero in attempt1, together in a consecutive manner. \\
+
+Despite being educative in nature, this program does not perform good enough in practice. Two input strings of maximum length 9 resolved into 3332 variables and 4718 constraints and turns out to be requiring 3 seconds to solve already (with adequate hardware and latest version of solver). Imaging dealing with paragraphs across lines. \\
+
+To this point, we are pretty much sure about the unlikeliness of solving the problem with ZIMPL. Thus starting from next attempt, we went back to good o'l Dynamic Programming. 
+
+\subsection{Suboptimal Attempt 3 with Backward-Chaining Dynamic Programming}
 
 
 

@@ -8,3 +8,5 @@
 \BOOKMARK [2][-]{subsection.2.3}{Implementation}{section.2}% 8
 \BOOKMARK [1][-]{section.3}{Better diff: MDiff}{}% 9
 \BOOKMARK [2][-]{subsection.3.1}{Failed Attemp 1 with ZIMPL}{section.3}% 10
+\BOOKMARK [2][-]{subsection.3.2}{Suboptimal Attemp 2 with ZIMPL}{section.3}% 11
+\BOOKMARK [2][-]{subsection.3.3}{Suboptimal Attempt 3 with Backward-Chaining Dynamic Programming}{section.3}% 12
