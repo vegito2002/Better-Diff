@@ -196,7 +196,7 @@ As described in the previous section, our first goal is to be able to inspect a 
 
 The second assumption is established so that there is a valid way to define the notion of ancestry. If we treat an entire document as one single paragraph, then there is no point in saying \textit{finding the predecessor of this entire document}. Because in practice, most modifications between files are minor and of comparable degree, which means different successors of the same predecessor document may end up looking very much alike. Even though we devise an algorithm to locate such an predecessor document for the document being inspected, the output is most likely to be inaccurate and uninformative. \\
 
-After dividing a document into paragraphs, the notion of ancestry and the concept of reusing now makes sense. Think it this way: when you write code, if you say \textit{reuse}, you usually refers to reusing a part of a code file, usually a function, or block. But in the case you want to reuse the code file in its entirety, you just \texttt{import} or \texttt{include} it. Such file-wise reusing operations would normally indicate the source of reusing directly and an dedicated algorithm to solve the ancestry relationship would be unnecessary. The same analysis applies to the case of general text files. We are only interested in finding the predecessor of a snippet of a text file, which is a reused part. We conveniently define such a concept of reused part as a paragraph. There can be other choices of delimitation of reused parts, but obsession over this definition is moot per se. \\
+After dividing a document into paragraphs, the notion of ancestry and the concept of reusing now makes sense. Think it this way: when you write code, if you say \textit{reuse}, you usually refers to reusing a part of a code file, usually a function, or block. But in the case you want to reuse the code file in its entirety, you just \texttt{import} or \texttt{include} it. Such file-wise reusing operations would normally indicate the source of reusing directly and a dedicated algorithm to solve the ancestry relationship would be unnecessary. The same analysis applies to the case of general text files. We are only interested in finding the predecessor of a snippet of a text file, which is a reused part. There is no strict definition of delimitation of reused parts, obsession over which is moot per se. We conveniently pick up the convention of paragraph and delimit reusing in this sense. \\
 
 Now, to find the most likely predecessor of a paragraph, is to find a paragraph that:
 \begin{enumerate}
@@ -206,7 +206,7 @@ Now, to find the most likely predecessor of a paragraph, is to find a paragraph 
 \end{enumerate}
 And to find such a paragraph that satisfies the above three conditions, we use the theory of textual similarity. \\
 
-\subsection{Texutual Similarity and Textual Similarity}
+\subsection{Texutual Similarity and Textual Signature}
 Since this is only a subroutine we resort to in this project, rather than the project itself's primary focus, the introduction here is brief. Minhash is a hashing scheme that can hash each string or piece of text to a value that is necessarily short but informative enough to capture the uniqueness of the text. This value is called the \texttt{signagure} of this text. Minhash is designed to be able to hash similar texts to similar signatures. And by a corresponding comparison function of two texts' respective signature, the two texts' similarity can be determined.
 
 \subsection{Implementation}
@@ -214,14 +214,8 @@ Back to the implementation of the application. In particular, we implement the p
 \begin{enumerate}
   \item Read in all files in the folder in the order of increasing lastly-modification time, which is determined by the filenames. Create two string arrays, one to store the filenames of all the files in question and one to store each file's content of all files. 
   \item For each content string of the file content array, break up the content string into an string array of storing this file's lines. By doing this, we have a 2-dimensional array of \texttt{filelines[m][n]} where \texttt{m} stands for the number of files involved, and \texttt{n} stands for each file's number of lines in its content. Incidentally, we trim out the whitespaces at the head and tail of each line. 
-  \item Using this 2-dimensional array \texttt{filelines[m][n]}, we scan all the lines of all files in the order of an intuitive 2-dimensional iterative order: 
-  \begin{lstlisting}
-  for (int i = 1 .. m) {
-    for (int j = 1 .. n) {
-      <process>
-    }
-  }
-  \end{lstlisting}
+  \item Using this 2-dimensional array \texttt{filelines[m][n]}, we scan all the lines of all files in the order of an intuitive 2-dimensional iterative order.
+
   In this scanning, we break up all the lines into paragraphs by the delimiter of \textit{emptyline} as mentioned before. For each paragraph, we iterate through all paragraphs discovered before it, and find the one paragraph with the highest similarity to it, which has to be above 80\%. We determine this paragraph as the \textbf{predecessor} of current iteration's paragraph. Relevant information are all stored. 
   \item Once we know the predecessor for each of all paragraphs of all files in the folder, we also maintain the edit distance produced by the improved \texttt{BetterDiff} algorithm with each paragraph. More specifically, this edit distance is calculated against each paragraph's predecessor with itself. By now, we have all the information we need to implement the application layer features in the future. For each paragraph, the information, in summary, typically consists of:
   \begin{itemize}
@@ -289,7 +283,7 @@ New String:
 4,3
 5,5
 \end{lstlisting}
-The input string is stored in variables \texttt{old[M]} and the output string is stored in variables \texttt{new[N]}. For \texttt{M}, we also have the binary annotation variable \texttt{delete[M]}, and similarly \texttt{add[N]} for \texttt{N}. Note that the value of the binary variables are the opposite of the \texttt{delete} and \texttt{add} Java boolean flags mentioned above. Here, \texttt{delete[m]} is 1 iff the digit $m$ of the input string (digit array) should be deleted in a min-distance editting. Similarly, i\texttt{add[n]} should be 1 iff the digit $n$ should be seen as an added digit in a min-distance editting. \\
+The input string is stored in variables \texttt{old[M]} and the output string is stored in variables \texttt{new[N]}. For \texttt{M}, we also have the binary annotation variable \texttt{delete[M]}, and similarly \texttt{add[N]} for \texttt{N}. Note that the value of the binary variables are the opposite of the \texttt{delete} and \texttt{add} Java boolean flags mentioned above. Here, \texttt{delete[m]} is 1 iff the digit $m$ of the input string (digit array) should be deleted in a min-distance editting. Similarly, \texttt{add[n]} should be 1 iff the digit $n$ should be seen as an added digit in a min-distance editting. \\
 
 With such definition, we derive another two variable definitions: \texttt{after\_delete[M]} and \texttt{before\_add[N]}.  \texttt{after\_delete[M]} is essentially \texttt{old[M]} after a mapping function being applied, which sets \texttt{after\_delete[m]} to 0 if \texttt{delete[m]} is 1 and to \texttt{old[m]} otherwise. \texttt{before\_add[N]} is defined in a similar way. It is intuitive to add a minimizing objective function, where the coefficients of \texttt{delete[M]} and \texttt{add[N]} are all positive. All that's left to now is to set up constraints. \\
 
@@ -438,7 +432,8 @@ The first table \texttt{prev}, at each entry \texttt{prev[i][j]} stores how the 
 The table \texttt{f[][]} and \texttt{prev[][]} all refers to decisions that a traditional Edit Distance algorithm would make. The third table \texttt{good[][]} on the other hand, means that it is possible to reach this entry without breaking any blocks as defined by enclosing pairings. Please refer to earlier parts of this section about how blocks are generated.\\
 
 We won't bother you with a detailed step-by-step analysis of the algorithm, and will instead focus on being to the point here. The \textbf{loop invariant} here is:\\
-At each entry \texttt{good[i][j]} is \texttt{true} iff there is a way of reaching this entry without breaking any blocks, or pairs of brackets.\\
+
+At each entry \texttt{good[i][j]} is \texttt{true} iff there is a way of reaching this entry, with its immediate predecessor on the path being among \texttt{[i][j]}'s three immediate neighbors, without breaking any blocks, or pairs of brackets.\\
 
 There are certain points that we should address here:
 \begin{itemize}

@@ -288,10 +288,10 @@ INPUT /usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/omsptm.fd
 INPUT /usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/omsptm.fd
 INPUT /usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/omspcr.fd
 INPUT /usr/local/texlive/2016/texmf-dist/tex/latex/psnfss/omspcr.fd
+INPUT /usr/local/texlive/2016/texmf-dist/fonts/tfm/adobe/courier/pcrb7t.tfm
 INPUT /usr/local/texlive/2016/texmf-dist/fonts/vf/adobe/times/zptmcm7y.vf
 INPUT /usr/local/texlive/2016/texmf-dist/fonts/tfm/adobe/symbol/psyr.tfm
 INPUT /usr/local/texlive/2016/texmf-dist/fonts/tfm/public/rsfs/rsfs10.tfm
-INPUT /usr/local/texlive/2016/texmf-dist/fonts/tfm/adobe/courier/pcrb7t.tfm
 INPUT /usr/local/texlive/2016/texmf-dist/fonts/vf/adobe/courier/pcrb7t.vf
 INPUT /usr/local/texlive/2016/texmf-dist/fonts/tfm/adobe/courier/pcrb8r.tfm
 INPUT /usr/local/texlive/2016/texmf-dist/fonts/tfm/adobe/courier/pcrro7t.tfm

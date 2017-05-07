@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1494139127 "425_project_writeup.tex" "425_project_writeup.pdf" "425_project_writeup" 1494139132
+["pdflatex"] 1494139920 "425_project_writeup.tex" "425_project_writeup.pdf" "425_project_writeup" 1494139925
   "/usr/local/texlive/2016/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2016/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/local/texlive/2016/texmf-dist/fonts/tfm/adobe/courier/pcrb7t.tfm" 1136768653 960 4ab65358b8406f30ef5496c8c096d22b ""
@@ -136,14 +136,14 @@
   "/usr/local/texlive/2016/texmf.cnf" 1463979140 577 2938757e76f31531e65cc647e3507693 ""
   "1.pdf" 1494132792 5581 49e8ec811f979532c30005c4f91b1e8b ""
   "2.pdf" 1494134251 15005 ac0ac73fc0947a7ccd308e0b9fb84499 ""
-  "425_project_writeup.aux" 1494139132 2287 594193038d922582f398d4ca8ab6b76d ""
-  "425_project_writeup.out" 1494139132 1037 9af0ef20e75f7a2d779ec078dd0a646d ""
-  "425_project_writeup.tex" 1494139121 43534 8eec7c7eaf54b9aca50ade7834694f8c ""
+  "425_project_writeup.aux" 1494139925 2286 fc99223275a6579d01b12b3501ef0f65 ""
+  "425_project_writeup.out" 1494139925 1036 d4a70d640ef367b6d0eb1be680b9bb3b ""
+  "425_project_writeup.tex" 1494139918 43522 b29ebb892d3fd861daffaa9186bd5afc ""
   "Screenshot.png" 1494124749 747160 fa0d5f73131b503f48e512b0895484cd ""
   "Screenshot1.png" 1494132793 11047 fcfad4f960f65e036c4f8db0bd18cd86 ""
   "pic1.png" 1494100238 21767 68778cbebf98fa29fdffb9a929c1be36 ""
   (generated)
-  "425_project_writeup.log"
-  "425_project_writeup.aux"
-  "425_project_writeup.out"
   "425_project_writeup.pdf"
+  "425_project_writeup.out"
+  "425_project_writeup.aux"
+  "425_project_writeup.log"
