@@ -359,9 +359,72 @@ The explanations for constraints and objective functions are thus omitted for br
 
 Despite being educative in nature, this program does not perform good enough in practice. Two input strings of maximum length 9 resolved into 3332 variables and 4718 constraints and turns out to be requiring 3 seconds to solve already (with adequate hardware and latest version of solver). Imaging dealing with paragraphs across lines. \\
 
-To this point, we are pretty much sure about the unlikeliness of solving the problem with ZIMPL. Thus starting from next attempt, we went back to good o'l Dynamic Programming. 
+To this point, we are pretty much sure about the unlikeliness of solving the problem with ZIMPL. Thus starting from next attempt, we went back to good o'l Dynamic Programming. The hope is to add modifications so that Dynamic Programming can address the pairing problem explicitly.
 
 \subsection{Suboptimal Attempt 3 with Backward-Chaining Dynamic Programming}
+We started by analyzing where the ordinary Edit Distance algorithm started to went astray. Consider this example:
+\begin{lstlisting}
+<a><b><c>
+  ---
+<a><c>
+\end{lstlisting}
+If running in a Backward-Chaining, or top-down manner, the Edit Distance algorism will produce a result as shown above. The desired result instead is:
+\begin{lstlisting}
+<a><b><c>
+   ---
+<a><c>
+\end{lstlisting}
+The reason for the ED algorism's malfunction is because the tail of \texttt{><c>} are treated as identical in both strings, and thus the algorism only starts considering editting when it comes from the tail of string 1 to the index 5 (0-based) of string 1.\\
+
+A quick fix immediately comes to mind: we can force the algorism to consider dropping \texttt{string1.charAt(6)}, which is a \texttt{>}. At this position, the solver faces a subproblem with both input strings' tail being \texttt{>}, which is a closing bracket. We add one case handling block to the algorism so that the when the algorism seems two input strings with same ending, which is a closing bracket, the algorism will try first dropping the two tails altogether at first, and then try dropping only the longest string's tail. And the algorism compare the two probing's return values. If the latter probing's return value, which results from dropping only the tail of the longer input string, is smaller or equal(which is the case in this example shown above), we choose the latter probing's strategy instead of dropping both tails. \\
+
+This is the major modification added to ED algorism in this attempt, and the program does produce desirable results for quite a lot of test cases, include the original three for-loop cases mentioned in the Introduction section, which terminates in less than 1 second. Note that memoization is implemented in all discussions here and below. \\
+
+But we eventually decided that optimization is not enough. Plus, it is unlikely to be able to address the paring of quotes with this simple optimization.
+
+\subsection{Final Attempt 4 with Forward-Chaining Dynamic Programming}
+First, we do a 1-pass iteration of each input string. We store the position of each openning of closing brackets. More specifically, we store each pair of brackets in the form of \texttt{closingIndex -> openingIndex}. We consider the substring between \texttt{openingIndex} and \texttt{closingIndex} to a block enclosed by this pair. \\
+
+Note that there is a subtlety here. Consider this code snippet:
+\begin{lstlisting}
+<context1>
+for (header) {
+  body
+}
+<context2
+\end{lstlisting}
+In this situation, we have to move the \texttt{openingIndex} of the openning curly brace to the head of its line. This is because we have to always associate each for-loop's header with its body which is a block enclosed by a pair of curly braces. And our later algorism depends on the ability to process each pair-enclosed block as a whole. By moving the opening curly brace's index ahead, we practically included the header inside the block. This prevents the algorithms breaking the atomicity of the header together with the block when processing.\\
+
+Blocks enclosed by quotes are determined in a more subtle way, and the disussions are omitted here. \\
+
+For the rest of discussion to make sense, consider this memoization table for the two input strings of \texttt{[a][c]} and \texttt{[a][b][c]}, respectively denoted as string 1 ad string 2:\\
+\includegraphics[scale=0.6,center]{2.pdf}\\
+
+Note what we want to achieve here: in the middle region of this table, we have three paths. Using Forward-Chaining or Backward-Chaining, we would end up choosing either the path on the top or the path in the bottom. But what we really want here, is the path in the middle, which respects the pairing of the brackets. \\
+
+We maintain, aside from a table \texttt{f[][]} as above, which shows the edit distance associated with each subproblem (indexed by the lenghs of the two input argument strings), two other tables:
+\begin{lstlisting}
+private enum Direction { DIAGONAL, UP, LEFT }
+...
+Direction[][] prev = new Direction[s1.length + 1][s2.length + 1];
+boolean[][] good = new boolean[s1.length + 1][s2.length + 1];
+\end{lstlisting}
+The first table \texttt{prev}, at each entry \texttt{prev[i][j]} stores how the \texttt{f[i][j]} edit distance is achieved. In particular, there are three ways of reaching at \texttt{[i][j]}:
+\begin{itemize}
+  \item Moving down from its upstairs neighbor. In the table, if we choose to set \texttt{prev[4][5]} to \texttt{UP}, that would indicate that the algorism should choose the result for the subproblem \texttt{[a][, [a][b} by deleting the character at index 4 of string 1. This is not possible in this case, but you should convince yourself about what each entry in \texttt{prev} means. In general, when an entry \texttt{prev[i][j]} is \texttt{DIAGONAL}, it means the tails of both input strings should be kept during editting. If it is either of the other two, which corrresponds to horizontal or vertial moves, that means the algorism has to delete (or add) one of the tails of the two strings.
+  \item Moving right from its left neighbor. The analysis above applies similarly here. 
+  \item Moving from the immediate topleft entry, which is \texttt{[i][j]}'s immediate previous diagonal neighbor. This means neither of the two strings' tails should be editted. 
+\end{itemize}
+The table \texttt{f[][]} and \texttt{prev[][]} all refers to decisions that a traditional Edit Distance algorism would make. The third table \texttt{good[][]} on the other hand, means that it is possible to reach this entry without breaking any blocks as defined by enclosing pairings. Please refer to earlier parts of this section about how blocks are generated.\\
+
+We won't bother you with a detailed step-by-step analysis of the algorithm, and will instead focus on being to the point here. The \textbf{loop invariant} here is:\\
+At each entry \texttt{good[i][j]} is \texttt{true} iff there is a way of reaching this entry without breaking any blocks, or pairs of brackets.\\
+
+There are certain points that we should address here:
+\begin{itemize}
+  \item What does it mean to break a block? that means for the subproblem corresponding to \texttt{[i][j]}, this entry's solution's corresponding editting can't be done without, for a certain pair of brackets, dropping one half in one input string's editting, while keeping both halves in another input string's output editting. That is to say, we require that for each pair of brackets, the two halves of the pair must either be both dropped in a subsolution, or be both preserved in a subsolution. Such an observation helps achieve what we set out to implement in the first place: fixing ignorance of brackets pairing.
+  \item This invariant does not address the table \texttt{f[][]} and the table \texttt{prev[][]}. Again, these two tables store solutions that comes from dynamic decisions made in the same way as any bottom-up Dynamic Programming algorism. 
+\end{itemize}
 
 
 

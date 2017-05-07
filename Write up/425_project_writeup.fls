@@ -289,6 +289,9 @@ INPUT /usr/local/texlive/2016/texmf-dist/fonts/tfm/adobe/courier/pcrro7t.tfm
 INPUT /usr/local/texlive/2016/texmf-dist/fonts/vf/adobe/times/zptmcm7t.vf
 INPUT /usr/local/texlive/2016/texmf-dist/fonts/vf/adobe/courier/pcrro7t.vf
 INPUT /usr/local/texlive/2016/texmf-dist/fonts/tfm/adobe/courier/pcrro8r.tfm
+INPUT 2.pdf
+INPUT ./2.pdf
+INPUT ./2.pdf
 INPUT 425_project_writeup.aux
 INPUT ./425_project_writeup.out
 INPUT ./425_project_writeup.out
