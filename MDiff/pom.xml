@@ -21,9 +21,6 @@
             <manifest>
               <mainClass>main.Main</mainClass>
             </manifest>
-            <manifestEntries>
-              <Class-Path>.</Class-Path>
-            </manifestEntries>
           </archive>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>

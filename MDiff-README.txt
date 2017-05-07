@@ -6,6 +6,11 @@ $ java -jar MDiff.jar 1.txt 2.txt 3.txt
 $ java -jar MDiff.jar --html 1.txt 2.txt 3.txt
 ```
 
+Compile:
+```
+mvn clean compile assembly:single
+```
+
 Mdiff file is similar to diff file as we indent the file with two spaces and put block header around unoriginal content. Character changes if applicable are annotated below a line.
 
 ```
