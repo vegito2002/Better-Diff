@@ -114,14 +114,12 @@ public class Diff {
 			h += " mdiffadded\">";
 		}
 		for (int i = p.getStart(); i < p.getEnd(); i++) {
-			h += "<p>";
 			int last = 0;
 			boolean current = true;
 			for (int j = 0; j < filelines[f][i].length(); j++) {
 				if (diff != null && current != diff[pos + j]) {
 					String part = filelines[f][i].substring(last, j);
-					String escaped = StringEscapeUtils.escapeHtml4(part);
-					h += escaped.replace(" ", "&nbsp;");
+					h += StringEscapeUtils.escapeHtml4(part);
 					if (current) {
 						h += "<span>";
 					} else {
@@ -135,7 +133,7 @@ public class Diff {
 			String escaped = StringEscapeUtils.escapeHtml4(part);
 			h += escaped.replace(" ", "&nbsp;");
 			if (!current) h += "</span>";
-			h += "</p>";
+			h += "\n";
 			pos += filelines[f][i].length() + 1;
 		}
 		return h + "</pre>";
