@@ -1,6 +1,7 @@
 package main;
 import java.io.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.core.*;
@@ -186,8 +187,8 @@ public class Diff {
 			
 			String path = filenames[i] + ".html";
 			try {
-				Files.copy(Paths.get(getClass().getResource("/resources/template.html").toURI()), new File(path).toPath(), StandardCopyOption.REPLACE_EXISTING);
-			} catch (Exception e) {e.printStackTrace();}
+				Files.copy(getClass().getResourceAsStream("/template.html"), new File(path).toPath(), StandardCopyOption.REPLACE_EXISTING);
+			} catch (Exception e) {}
 			try (PrintWriter w = new PrintWriter(new BufferedWriter(new FileWriter(path, true)))) {
 				for (Map.Entry<Integer, Map<Integer, boolean[]>> e : origin.entrySet()) {
 					w.print("<div id=\"mdiff" + e.getKey() + "\" class=\"mdiffleft\", style=\"display: none;\"><h3>" + filenames[e.getKey()] + "</h3><div class=\"mdiffinner\">");

@@ -19,13 +19,13 @@ public class Distance {
 				int pos = s.substring(0, i > 0 ? i - 1 : i).lastIndexOf('\n');
 				stack.push(Pair.of(pos + 1, c));
 				break;
-			case '[': case '(':
+			case '[': case '(': case '<':
 				stack.push(Pair.of(i, c));
 				break;
-			case '}': case ']': case ')':
+			case '}': case ']': case ')': case '>':
 				if (stack.isEmpty()) break;
 				Pair<Integer, Character> p = stack.pop();
-				if (c == '}' && p.getRight() != '{' || c == ']' && p.getRight() != '[' || c == ')' && p.getRight() != '(') {
+				if (c == '}' && p.getRight() != '{' || c == ']' && p.getRight() != '[' || c == ')' && p.getRight() != '(' || c == '>' && p.getRight() != '<') {
 					stack.push(p);
 					break;
 				}
