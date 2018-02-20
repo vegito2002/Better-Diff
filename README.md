@@ -35,7 +35,7 @@ As the *Multi* in the project name. We try to integrate our algorithm into a mor
 
 <img src="https://www.dropbox.com/s/pni6ojruwl4nn25/Screenshot%202018-02-19%2019.03.13.png?raw=1" width="300">
 
-Each node stands for a single text file. And there are inheritance relationships in between files, in that some files result from direct modification from its parent. This file itself can derive more files futher. Within a folder containing such files, our **objective** is to find the most likely parent of this file. We then find in this most likely parent for each of the child file's paragraph. 
+Each node stands for a single text file. And there are inheritance relationships in between files, in that some files result from direct modification from its parent. This file itself can engender more files futher. Within a folder containing such files, our **objective** is, for each paragraph in a child file, like `3.txt` for example, we find amongst all paragraphs of all preceding files, the one paragraph that is most similar to this target paragraph. Then we use `BetterDiff` to display their difference. When choosing parent paragraphs, break tie in favor of candidate paragraphs in files closer to the child file. So the same paragraph in `2.txt` will defeat the one in `1.txt` to be the parent of a paragraph in `3.txt`.
 
 ### Side Note: Motivation
 This is a feature suggested by our Professor. When you have to consantly modify some document, and also have to maintain all the slightly different but hierarchically versions, you occasionally forget the modification order and relation between different versions. Each version might serve a specific purpose or is oriented to a certain client, amongst possibly thousands.   
