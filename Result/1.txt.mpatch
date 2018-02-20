@@ -1,3 +1,0 @@
-  MDiff stands for multi-diff. It can compare more than one files and generate plain text mpatch file or HTML formatted results. Instead of going line by line, MDiff first utilizes MinHash to find origins of each paragraph, then uses improved edit distance to compare paragraphs character by character.
-  
-  MDiff takes a list of files as its input. It works in two mode, plain text patch file mode and HTML mode (enabled with `--html` flag). It generates a `.mpatch` or `.html` file for each file in the input. We process files by the their listed order, and each file are only compared with files before it, therefore no cycle is possible.
