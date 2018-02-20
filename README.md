@@ -74,7 +74,7 @@ You have seen above what the HTML files will work like after running the second 
 ```
 
 In case you want to compile for yourself, go into the source code folder `src`:
-```bash
+```shell
 $ mvn clean compile assembly:single
 ```
 
