@@ -1,9 +1,11 @@
 # Multi-Diff
 
-### Introduction
+This is a project where our team (Guoye Zhang and Qiang Zhang) re-assess a legacy utility and try to address a shortcoming we realize, augmenting the utility with additional fine-tailored functionality while solving the problem.
+
+### Brief Introduction: Ideas and Objective
 Multi-Diff is an innovating utility project that aims to enhance the legacy `diff` utility with additional practical functionality and better algorithmic awareness.   
 * **More intelligent algorithm**: The `BetterDiff` algorithm developed in this project knows better to handle edit distance calculation with awareness of **brackets matching**. For instance, we try to make `BetterDiff` output diff patch result of
-```java
+```diff
    for(int i=0; i<10; i++) {
        System.out.println("First line");
    }
@@ -15,7 +17,7 @@ Multi-Diff is an innovating utility project that aims to enhance the legacy `dif
    }
 ```
 After deleting the second block. The wildly used `diff` utility instead will output:
-```java
+```diff
    for(int i=0; i<10; i++) {
        System.out.println("First line");
    }
