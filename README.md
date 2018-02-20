@@ -1,6 +1,6 @@
 # Multi-Diff
 
-This is a project where our team (Guoye Zhang and Qiang Zhang) re-assess a legacy utility and try to address a shortcoming we realize, augmenting the utility with additional fine-tailored functionality while solving the problem. We took iterative approaches from different perspective, and ended up having developed a richer algorithm than the original one.
+This is a project where our team (Guoye Zhang and Qiang Zhang) re-assesses a legacy utility and try to address a shortcoming we realize, augmenting the utility with additional fine-tailored functionality while solving the problem. We took iterative approaches from different perspective, and ended up having developed a richer algorithm than the original one.
 
 ## Brief Introduction: Ideas and Objective
 Multi-Diff is an innovating utility project that aims to enhance the legacy `diff` utility with additional practical functionality and better algorithmic awareness.   
@@ -31,7 +31,7 @@ After deleting the second block. The wildly used `diff` utility instead will out
 ```
 This result does not explain the correct bracket pairing. 
 ### Multi-file Referencing
-As the *Multi* in the project name. We try to integrate out algorithm into a more niche domain to provide better functionality. Consider such a scenario: 
+As the *Multi* in the project name. We try to integrate our algorithm into a more niche domain to provide better functionality. Consider such a scenario: 
 
 <img src="https://www.dropbox.com/s/pni6ojruwl4nn25/Screenshot%202018-02-19%2019.03.13.png?raw=1" width="300">
 
