@@ -1,11 +1,12 @@
 # Multi-Diff
 
-This is a project where our team (Guoye Zhang and Qiang Zhang) re-assess a legacy utility and try to address a shortcoming we realize, augmenting the utility with additional fine-tailored functionality while solving the problem.
+This is a project where our team (Guoye Zhang and Qiang Zhang) re-assess a legacy utility and try to address a shortcoming we realize, augmenting the utility with additional fine-tailored functionality while solving the problem. We took iterative approaches from different perspective, and ended up having developed a richer algorithm than the original one.
 
-### Brief Introduction: Ideas and Objective
+## Brief Introduction: Ideas and Objective
 Multi-Diff is an innovating utility project that aims to enhance the legacy `diff` utility with additional practical functionality and better algorithmic awareness.   
-* **More intelligent algorithm**: The `BetterDiff` algorithm developed in this project knows better to handle edit distance calculation with awareness of **brackets matching**. For instance, we try to make `BetterDiff` output diff patch result of
-```diff
+### More intelligent algorithm
+ The `BetterDiff` algorithm developed in this project knows better to handle edit distance calculation with awareness of **brackets matching**. For instance, we try to make `BetterDiff` output diff patch result of
+```java
    for(int i=0; i<10; i++) {
        System.out.println("First line");
    }
@@ -17,7 +18,7 @@ Multi-Diff is an innovating utility project that aims to enhance the legacy `dif
    }
 ```
 After deleting the second block. The wildly used `diff` utility instead will output:
-```diff
+```java
    for(int i=0; i<10; i++) {
        System.out.println("First line");
    }
@@ -29,12 +30,14 @@ After deleting the second block. The wildly used `diff` utility instead will out
    }
 ```
 This result does not explain the correct bracket pairing. 
-* **Multi-file Referencing**: as the *Multi* in the project name. We try to integrate out algorithm into a more niche domain to provide better functionality. Consider such a scenario: 
+### Multi-file Referencing
+As the *Multi* in the project name. We try to integrate out algorithm into a more niche domain to provide better functionality. Consider such a scenario: 
 
 <img src="https://www.dropbox.com/s/pni6ojruwl4nn25/Screenshot%202018-02-19%2019.03.13.png?raw=1" width="300">
 
 Each node stands for a single text file. And there are inheritance relationships in between files, in that some files result from direct modification from its parent. This file itself can derive more files futher. Within a folder containing such files, our **objective** is to find the most likely parent of this file. We then find in this most likely parent for each of the child file's paragraph. 
 
+### Side Note: Motivation
 This is a feature suggested by our Professor. When you have to consantly modify some document, and also have to maintain all the slightly different but hierarchically versions, you occasionally forget the modification order and relation between different versions. Each version might serve a specific purpose or is oriented to a certain client, amongst possibly thousands.   
 Let's say you had client A with version 1 before, and B with 2, who had a certain relationship with A. Now suppose you again have to provide some version to person C, who you know has relation with A similar to that of B with A. Naturally you want to provide something similar to version 2 to C, but with proper modification like that made from 1 to 2. If you happen to forget the conceptual relationship you previously know by heart between A and B, that is, you have ver2, you know B, but you forgot about A, you just know there was somebody like that based on version of whom ver2 came from. Even though you have thousands of clients to deal with, having version 2 alone is enough for you to pinpoint version 1 and inspire you on how to modify ver1 to get ver3 to C.  
 We analyzed this use case and provided a solution with visual interface. 
