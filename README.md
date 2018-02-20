@@ -77,3 +77,6 @@ In case you want to compile for yourself, go into the source code folder `src`:
 ```bash
 $ mvn clean compile assembly:single
 ```
+
+### Miscellaneous
+Aside from `MDiff`, `run` and `write-up` folder, whose intentions are straghtforward, the `deprecated` folder contains files related to iterative failed or unsatisfactory attempts, as decrited in Chapter 3 of the [**project write up**](write-up/writeup.pdf). This folder also contains the initial project proposal. 
