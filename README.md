@@ -52,7 +52,7 @@ Please read the very detailed [**project write up**](write-up/writeup.pdf) for m
 
 ## Compile and Run
 Look inside the `run` folder, we included `MDiff.jar` which you can use on any series of files within the same folder:
-```bash
+```shell
 $ java -jar MDiff.jar 1.txt 2.txt 3.txt
 $ java -jar MDiff.jar --html 1.txt 2.txt 3.txt
 ```
