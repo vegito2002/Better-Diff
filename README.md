@@ -50,7 +50,7 @@ The left side will be displaying the text file of the most likely predecessor. T
 
 Please read the very detailed [**project write up**](write-up/writeup.pdf) for more information. Certain simplifying assumptions are made to achieve better result in limitted domain.
 
-### Compile and Run
+## Compile and Run
 Look inside the `run` folder, we included `MDiff.jar` which you can use on any series of files within the same folder:
 ```bash
 $ java -jar MDiff.jar 1.txt 2.txt 3.txt
