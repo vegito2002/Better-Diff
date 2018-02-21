@@ -9,6 +9,11 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.codelibs.minhash.MinHash;
 
+/*
+	Integrates all components together, including output producing, actual input file processing, HTML output
+	producing, etc.
+*/
+
 public class Diff {
 	private String[] filenames;
 	private String[] files;

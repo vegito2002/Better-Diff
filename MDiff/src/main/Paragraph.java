@@ -1,6 +1,10 @@
 package main;
 import org.codelibs.minhash.MinHash;
 
+/*
+	Separate class to handle the MinHash Calculation component imported.
+*/
+
 public class Paragraph {
 	private int file, start, end;
 	private byte[] hash;

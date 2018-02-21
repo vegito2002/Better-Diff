@@ -2,6 +2,10 @@ package main;
 import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 
+/*
+	The bulk of the improved Edit Distance algorithm that takes into consideration of bracket pairing
+*/
+
 public class Distance {
 	/**
 	 * Find pairs of brackets and quotes in a string.

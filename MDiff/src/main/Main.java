@@ -2,6 +2,10 @@ package main;
 import java.util.Arrays;
 import java.nio.file.*;
 
+/*
+	The main entrance of the project
+*/
+
 public class Main {
 	public static void main(String[] args) {
 		if (args.length < 2 || (args[0].equals("--html") && args.length < 3)) {
